@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAvatar } from "../../content/AvatarContext";
+import { useAvatar } from "../../context/AvatarContext";
 
 const ProfileContent: React.FC = () => {
   const [username, setUsername] = useState<string>("");

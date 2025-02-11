@@ -5,9 +5,16 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Banner from "./pages/Banner";
 import ProfilePage from "./pages/Profile";
-import { AvatarProvider } from "./content/AvatarContext";
+import { AvatarProvider } from "./context/AvatarContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Navigate } from "react-router-dom";
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { user } = useAuth();
+  return user ? <>{children}</> : <Navigate to="/login" replace />;
+};
 const App: React.FC = () => {
   const [users, setUsers] = useState<
     { email: string; password: string; username: string }[]
@@ -37,20 +44,29 @@ const App: React.FC = () => {
   };
 
   return (
-    <AvatarProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Banner />} />
-          <Route
-            path="/register"
-            element={<Register onRegister={handleRegister} />}
-          />
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/profile" element={<ProfilePage />} />
-        </Routes>
-      </Router>
-    </AvatarProvider>
+    <AuthProvider>
+      <AvatarProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Banner />} />
+            <Route
+              path="/register"
+              element={<Register onRegister={handleRegister} />}
+            />
+            <Route path="/login" element={<Login onLogin={handleLogin} />} />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/profile" element={<ProfilePage />} />
+          </Routes>
+        </Router>
+      </AvatarProvider>
+    </AuthProvider>
   );
 };
 
