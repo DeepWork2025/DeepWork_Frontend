@@ -4,6 +4,7 @@ import Calendar from "../components/calendar/Calendar";
 import TimeAxis from "../components/timeAxis/TimeAxis";
 import Timer from "../components/timer/Timer";
 import "../styles/Home.css";
+import RightSideBar from "../components/rightSideBar/RightSideBar";
 
 const Home: React.FC = () => {
   return (
@@ -16,6 +17,9 @@ const Home: React.FC = () => {
         </div>
         <div className="time-axis-panel">
           <TimeAxis />
+        </div>
+        <div className="right-side-bar">
+          <RightSideBar />
         </div>
       </div>
     </div>
