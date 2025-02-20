@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-const Calendar: React.FC = () => {
+const MonthViewCalendar: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const today = new Date();
 
@@ -90,4 +90,4 @@ const Calendar: React.FC = () => {
   );
 };
 
-export default Calendar;
+export default MonthViewCalendar;

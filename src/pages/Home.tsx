@@ -1,10 +1,9 @@
 import React from "react";
 import Navbar from "../components/navbar/Navbar";
-import Calendar from "../components/calendar/Calendar";
-import TimeAxis from "../components/timeAxis/TimeAxis";
+import DayViewCalendar from "../components/calendar/containers/DayViewCalendar";
+import MonthViewCalendar from "../components/calendar/containers/MonthViewCalendar";
 import Timer from "../components/timer/Timer";
-import AddEvent from "../components/event/AddEvent";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import "../styles/Home.css";
 
 const Home: React.FC = () => {
@@ -13,12 +12,11 @@ const Home: React.FC = () => {
       <Navbar />
       <div className="content-container">
         <div className="calendar-panel">
-          <Calendar />
+          <MonthViewCalendar />
           <Timer />
-          <AddEvent />
         </div>
         <div className="time-axis-panel">
-          <TimeAxis />
+          <DayViewCalendar />
         </div>
       </div>
     </div>

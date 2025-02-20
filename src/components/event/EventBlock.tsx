@@ -1,13 +1,5 @@
 import React from 'react';
-
-interface EventBlockProps {
-  title: string;
-  startTime: string;
-  endTime: string;
-  label: string;
-  description?: string;
-  isOverlapping?: boolean;
-}
+import { EventBlockProps } from '../../types/event.types';
 
 const EventBlock: React.FC<EventBlockProps> = ({
   title,
@@ -17,6 +9,14 @@ const EventBlock: React.FC<EventBlockProps> = ({
   description,
   isOverlapping = false,
 }) => {
+
+  if (!startTime || !endTime) {
+    console.error("Missing startTime or endTime in EventBlock", { startTime, endTime });
+    return null; // Prevent rendering if data is invalid
+  }
+  console.log("Rendering EventBlock with props:", { title, startTime, endTime, label, description });
+
+
   // Convert time strings to pixels for positioning
   const calculatePosition = (time: string) => {
     const [hours, minutes] = time.split(':').map(Number);

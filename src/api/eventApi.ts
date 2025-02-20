@@ -1,6 +1,7 @@
 import { EventData } from '../types/event.types';
 
 export const createEvent = async (eventData: EventData) => {
+    console.log("Sending event to API:", eventData); // Debugging
     try {
         const response = await fetch('/api/events', {
             method: 'POST',
