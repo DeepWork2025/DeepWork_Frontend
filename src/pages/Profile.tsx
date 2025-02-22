@@ -5,9 +5,7 @@ import Navbar from "../components/navbar/Navbar";
 const ProfilePage: React.FC = () => {
   return (
     <div>
-      <div className="navbar">
-        <Navbar />
-      </div>
+      <Navbar />
       <ProfileContent />
     </div>
   );
