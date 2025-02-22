@@ -37,9 +37,9 @@ const Calendar: React.FC = () => {
       days.push(
         <div
           key={i}
-          className={`w-10 h-10 flex items-center justify-center  text-sm font-medium ${
+          className={`w-10 h-10 flex items-center justify-center text-sm font-medium cursor-pointer transition ${
             isToday(i)
-              ? "bg-yellow-400 text-white rounded-full font-bold"
+              ? "bg-blue-500 text-white rounded-full font-bold"
               : "hover:bg-gray-200"
           }`}
         >
@@ -52,7 +52,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="w-[320px] h-[350px] flex flex-col border rounded-lg shadow-md bg-white overflow-hidden">
+    <div className="max-w-sm h-[350px] flex flex-col border rounded-lg shadow-md bg-white overflow-hidden">
       {/* header */}
       <div className="flex justify-between items-center bg-gray-100 px-4 py-2">
         <button
