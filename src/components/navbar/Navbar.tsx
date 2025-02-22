@@ -12,7 +12,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="flex justify-between px-6 py-4 bg-gray-100 shadow">
+    <nav className="flex h-[56px] justify-between px-6 py-4 bg-gray-100 shadow">
       <Link to="/home" className="text-xl font-bold">
         Deep Work
       </Link>
