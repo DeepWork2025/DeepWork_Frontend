@@ -1,4 +1,3 @@
-import "./navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAvatar } from "../../content/AvatarContext";
