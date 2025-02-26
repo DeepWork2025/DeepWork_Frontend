@@ -1,0 +1,30 @@
+name: Fronten CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node_js
+        uses: actions/setup-node@v4.2.0
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: |
+          npm install
+
+      # - name: Run tests
+        # run: |
+          # npm test
+
+      - name: Build
+        run: |
+          npm run build
