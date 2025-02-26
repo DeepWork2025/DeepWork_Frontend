@@ -1,7 +1,7 @@
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-// import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin from "@fullcalendar/interaction";
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import EventBlock from '../event/EventBlock';
 // import { EventClickArg, DateSelectArg } from '@fullcalendar/core';
@@ -12,13 +12,13 @@ const FullCalendarWrapper = () => {
     handleEventClick,
     handleDateSelect,
     handleEventDrop,
-    handleEventResize
+    handleEventResize,
   } = useCalendarEvents();
 
   return (
     <div className="h-full">
       <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin]}
+        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridDay"
         headerToolbar={false} // We'll use a custom toolbar
         events={events}

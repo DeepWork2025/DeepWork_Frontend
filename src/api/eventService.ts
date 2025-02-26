@@ -1,4 +1,4 @@
-const API_URL = 'https://your-api.com/events'; // Replace with actual API endpoint
+const API_URL = 'http://localhost:5001/events'; // Replace with actual API endpoint
 
 export const fetchEvents = async () => {
   try {

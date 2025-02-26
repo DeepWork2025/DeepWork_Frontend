@@ -7,6 +7,8 @@ export const useCalendarEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
+  // Debugging - Check if events are updating correctly
+
   const handleEventClick = useCallback((clickInfo: EventClickArg) => {
     setSelectedEvent(clickInfo.event);
     setIsFormOpen(true);

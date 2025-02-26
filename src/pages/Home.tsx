@@ -1,7 +1,6 @@
 import React from "react";
 import Navbar from "../components/navbar/Navbar";
 import Calendar from "../components/Calendar/Calendar";
-import TimeAxis from "../components/timeAxis/TimeAxis";
 import Timer from "../components/timer/Timer";
 import "../styles/Home.css";
 import DayCalendar from "../components/Calendar/DayCalendar";
@@ -16,7 +15,6 @@ const Home: React.FC = () => {
           <Timer />
         </div>
         <div className="time-axis-panel">
-          <TimeAxis />
           <DayCalendar />
         </div>
       </div>
