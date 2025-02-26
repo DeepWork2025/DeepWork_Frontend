@@ -2,38 +2,41 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 interface LoginFormProps {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (username: string, password: string) => void;
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [email, setEmail] = useState("");
+  const [username, setusername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
-    email: "",
+    username: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onLogin(email, password);
-
-    validateField(email, "email", "Email cannot be blank");
-    validateField(password, "password", "Password cannot be blank");
-  };
-
-  const validateField = (value: string, field: string, message: string) => {
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [field]: value.trim() === "" ? message : "",
-    }));
-  };
-
-  const handleInputChange =
-    (setter: React.Dispatch<React.SetStateAction<string>>, field: string) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setter(e.target.value);
-      validateField(e.target.value, field, `${field} cannot be blank`);
+  const validateFields = () => {
+    const newErrors = {
+      username: username.trim() === "" ? "Username cannot be blank" : "",
+      password: password.trim() === "" ? "Password cannot be blank" : "",
+      general: "",
     };
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((error) => error !== "");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateFields()) return;
+
+    try {
+      await onLogin(username, password);
+    } catch (err) {
+      setErrors((prev) => ({
+        ...prev,
+        general: err instanceof Error ? err.message : "Login failed",
+      }));
+    }
+  };
 
   return (
     <div className="flex h-screen">
@@ -84,25 +87,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         <div className="text-center text-gray-500 mb-4">Or</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email  */}
+          {/* username  */}
           <div>
             <label
-              htmlFor="email"
+              htmlFor="username"
               className="block text-sm font-medium text-gray-700"
             >
-              Email
+              username
             </label>
             <input
-              type="email"
-              name="email"
-              id="email"
+              type="username"
+              name="username"
+              id="username"
               placeholder="abc@gmail.com"
-              value={email}
-              onChange={handleInputChange(setEmail, "email")}
+              value={username}
+              onChange={handleInputChange(setusername, "username")}
               className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email}</p>
+            {errors.username && (
+              <p className="text-red-500 text-sm">{errors.username}</p>
             )}
           </div>
 

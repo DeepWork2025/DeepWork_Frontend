@@ -1,62 +1,54 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { loginUser } from "../api/auth";
+import { log } from "console";
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [credentials, setCredentials] = useState({
+    username: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // 这里用 localStorage 模拟一个简单的用户数据库
-    const storedUser = localStorage.getItem("registeredUser");
-    const storedPassword = localStorage.getItem("registeredPassword");
-
-    if (email === storedUser && password === storedPassword) {
-      login(email); // 登录成功
+    try {
+      await loginUser(credentials.username, credentials.password);
       navigate("/home");
-    } else {
-      alert("Invalid email or password");
+    } catch (err) {
+      console.log(err);
+      setError("Login failed. Check your credentials.");
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-2xl font-semibold mb-4">Login</h2>
-      <form
-        onSubmit={handleLogin}
-        className="w-96 p-6 bg-white shadow-md rounded-md"
-      >
+      <h2 className="text-xl font-bold">Login</h2>
+      {error && <p className="text-red-500">{error}</p>}
+      <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
         <input
-          type="email"
-          placeholder="Email"
-          className="w-full mb-3 px-4 py-2 border rounded-md"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="username"
+          placeholder="username"
+          value={credentials.username}
+          onChange={(e) =>
+            setCredentials({ ...credentials, username: e.target.value })
+          }
+          className="border p-2"
         />
         <input
           type="password"
           placeholder="Password"
-          className="w-full mb-3 px-4 py-2 border rounded-md"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={credentials.password}
+          onChange={(e) =>
+            setCredentials({ ...credentials, password: e.target.value })
+          }
+          className="border p-2"
         />
-        <button
-          type="submit"
-          className="w-full py-2 bg-blue-500 text-white rounded-md"
-        >
+        <button type="submit" className="bg-blue-500 text-white px-4 py-2">
           Login
         </button>
       </form>
-      <p className="mt-4">
-        Don't have an account?{" "}
-        <Link to="/register" className="text-blue-500 underline">
-          Register
-        </Link>
-      </p>
     </div>
   );
 };

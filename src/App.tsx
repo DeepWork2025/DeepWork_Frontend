@@ -6,15 +6,9 @@ import Home from "./pages/Home";
 import Banner from "./pages/Banner";
 import ProfilePage from "./pages/Profile";
 import { AvatarProvider } from "./context/AvatarContext";
-import { AuthProvider, useAuth } from "./context/AuthContext";
-import { Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+// import PrivateRoute from "./auth/PrivateRoute";
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const { user } = useAuth();
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
-};
 const App: React.FC = () => {
   const [users, setUsers] = useState<
     { email: string; password: string; username: string }[]
@@ -33,7 +27,7 @@ const App: React.FC = () => {
     alert("Registration successful!");
   };
 
-  const handleLogin = (_email: string, _password: string): boolean => {
+  const handleLogin = (username: string, password: string): boolean => {
     const loginSuccessful = true;
     if (loginSuccessful) {
       localStorage.setItem("isLoggedIn", "true");
@@ -54,14 +48,9 @@ const App: React.FC = () => {
               element={<Register onRegister={handleRegister} />}
             />
             <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            <Route
-              path="/home"
-              element={
-                <ProtectedRoute>
-                  <Home />
-                </ProtectedRoute>
-              }
-            />
+            {/* <Route element={<PrivateRoute />}> */}
+            <Route path="/home" element={<Home />} />
+            {/* </Route> */}
             <Route path="/profile" element={<ProfilePage />} />
           </Routes>
         </Router>
