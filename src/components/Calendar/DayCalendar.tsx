@@ -1,6 +1,7 @@
 import FullCalendarWrapper from './FullCalendarWrapper';
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import EventForm from '../event/EventForm';
+import EventBlock from '../event/EventBlock';
 
 const DayCalendar = () => {
   const {

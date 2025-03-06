@@ -4,7 +4,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from "@fullcalendar/interaction";
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import EventBlock from '../event/EventBlock';
-// import { EventClickArg, DateSelectArg } from '@fullcalendar/core';
+import { EventClickArg, DateSelectArg } from '@fullcalendar/core';
 
 const FullCalendarWrapper = () => {
   const { 
