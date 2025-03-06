@@ -11,6 +11,11 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
+    "@fullcalendar/core": "^6.1.15",
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/interaction": "^6.1.15",
+    "@fullcalendar/react": "^6.1.15",
+    "@fullcalendar/timegrid": "^6.1.15",
     "@tailwindcss/vite": "^4.0.3",
     "antd": "^5.23.2",
     "axios": "^1.7.9",

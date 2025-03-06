@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import Navbar from "../components/navbar/Navbar";
+import Calendar from "../components/Calendar/Calendar";
+import Timer from "../components/timer/Timer";
+import "../styles/Home.css";
+import DayCalendar from "../components/Calendar/DayCalendar";
 import Calendar from "../components/calendar/Calendar";
 import Timer from "../components/timer/Timer";
 import TimeAxis from "../components/timeAxis/TimeAxis";
@@ -34,10 +38,9 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
+        <div className="time-axis-panel">
+          <DayCalendar />
 
-        {/* 中间 TimeAxis */}
-        <div className="flex-1">
-          <TimeAxis />
         </div>
 
         {/* 右侧边栏 */}
