@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import Navbar from "../components/navbar/Navbar";
 import Calendar from "../components/Calendar/Calendar";
-import Timer from "../components/timer/Timer";
 import DayCalendar from "../components/Calendar/DayCalendar";
 import RightSideBar from "../components/rightSideBar/RightSideBar";
+import WorkLogCalendar from "../components/workLog/WorkLogCalendar";
 
 const Home: React.FC = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -30,13 +30,21 @@ const Home: React.FC = () => {
           {isSidebarExpanded && (
             <div className="p-4">
               <Calendar />
-              <Timer />
             </div>
           )}
         </div>
         <div className="flex-1 overflow-y-auto bg-white time-axis-panel">
-          <DayCalendar />
+          <div className="flex w-full space-x-4"> 
+            {/* Day Calendar */}
+            <div className="w-1/2">
+              <DayCalendar />
+            </div>
 
+            {/* WorkLog Calendar */}
+            <div className="w-1/2">
+              <WorkLogCalendar />
+            </div>
+          </div>
         </div>
 
         {/* 右侧边栏 */}
