@@ -4,6 +4,7 @@ import Calendar from "../components/Calendar/Calendar";
 import DayCalendar from "../components/Calendar/DayCalendar";
 import RightSideBar from "../components/rightSideBar/RightSideBar";
 import WorkLogCalendar from "../components/workLog/WorkLogCalendar";
+import CalendarContainer from "../components/Calendar/CalendarContainer";
 
 const Home: React.FC = () => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -33,19 +34,7 @@ const Home: React.FC = () => {
             </div>
           )}
         </div>
-        <div className="flex-1 overflow-y-auto bg-white time-axis-panel">
-          <div className="flex w-full space-x-4"> 
-            {/* Day Calendar */}
-            <div className="w-1/2">
-              <DayCalendar />
-            </div>
-
-            {/* WorkLog Calendar */}
-            <div className="w-1/2">
-              <WorkLogCalendar />
-            </div>
-          </div>
-        </div>
+          <CalendarContainer />
 
         {/* 右侧边栏 */}
         <div className="w-[400px] bg-gray-200 overflow-y-auto">

@@ -20,7 +20,11 @@ const FullCalendarWrapper = () => {
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridDay"
-        headerToolbar={false} // We'll use a custom toolbar
+        headerToolbar={{
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        }}
         events={events}
         selectable={true}
         editable={true}
@@ -28,7 +32,10 @@ const FullCalendarWrapper = () => {
         select={handleDateSelect}
         eventDrop={handleEventDrop}
         eventResize={handleEventResize}
-        height="100%"
+        height="auto"
+        expandRows={true}
+        nowIndicator={true}
+        allDaySlot={false}
         eventContent={(eventInfo)=> <EventBlock event={eventInfo.event} />}// Custom event renderer
       />
     </div>

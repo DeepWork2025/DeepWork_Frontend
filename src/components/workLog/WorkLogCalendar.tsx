@@ -122,11 +122,7 @@ const WorkLogCalendar: React.FC = () => {
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay'
-            }}
+            headerToolbar={false}
             selectable={true}
             selectMirror={true}
             dayMaxEvents={true}
@@ -141,6 +137,9 @@ const WorkLogCalendar: React.FC = () => {
             expandRows={true}
             allDaySlot={false}
             nowIndicator={true}
+            // slotLabelDidMount={(info) => {
+            //   info.el.style.display = "none"; // Hides time labels (8:00, 9:00, etc.)
+            // }}
           />
         </div>
 

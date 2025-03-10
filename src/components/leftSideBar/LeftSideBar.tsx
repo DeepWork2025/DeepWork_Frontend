@@ -1,5 +1,5 @@
 import React from "react";
-import Calendar from "../calendar/Calendar";
+import Calendar from "../Calendar/Calendar";
 import Timer from "../timer/Timer";
 
 const LeftSideBar: React.FC = () => {
