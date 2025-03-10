@@ -5,28 +5,39 @@ const STORAGE_KEYS = {
     ACTIVE_LOG: 'activeWorkLog',
     CATEGORIES: 'workLogCategories'
   };
-  
+
+  // Get work log by id
+  export const getWorkLogById = (id: string): WorkLogData | null => {
+    const logs = localStorage.getItem(STORAGE_KEYS.WORK_LOGS);
+    if (logs){
+        const allLogs: WorkLogData[] = JSON.parse(logs);
+        const foundLog = allLogs.find(log => log.id === id);
+        return foundLog || null;
+    }
+
+  }
+
   // Get all work logs
   export const getAllWorkLogs = (): WorkLogData[] => {
     const logs = localStorage.getItem(STORAGE_KEYS.WORK_LOGS);
     return logs ? JSON.parse(logs) : [];
   };
-  
+
   // Get logs for a specific date
   export const getWorkLogsForDate = (date: Date): WorkLogData[] => {
     const allLogs = getAllWorkLogs();
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
-    
+
     return allLogs.filter(log => {
       const logDate = new Date(log.start);
       return logDate >= startOfDay && logDate <= endOfDay;
     });
   };
-  
+
   // Save a new work log
   export const saveWorkLog = (log: WorkLogData): void => {
     const allLogs = getAllWorkLogs();

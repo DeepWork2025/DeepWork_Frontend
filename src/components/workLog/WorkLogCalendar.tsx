@@ -116,9 +116,9 @@ const WorkLogCalendar: React.FC = () => {
         }) : 'No date selected'}
       </h2>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="flex gap-4">
         {/* Full Calendar Component */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden">
           <FullCalendar
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
@@ -141,44 +141,6 @@ const WorkLogCalendar: React.FC = () => {
             //   info.el.style.display = "none"; // Hides time labels (8:00, 9:00, etc.)
             // }}
           />
-        </div>
-
-        {/* Timeline View */}
-        <div className="bg-white rounded-lg shadow-md overflow-y-auto max-h-[calc(100vh-300px)]">
-          <div className="p-3 border-b font-medium sticky top-0 z-20 bg-white">
-            Timeline for {date ? date.toLocaleDateString('en-US', { 
-              month: 'short',
-              day: 'numeric'
-            }) : ''}
-          </div>
-          
-          {Object.entries(groupedLogs).map(([hour, hourLogs]) => (
-            hourLogs.length > 0 && (
-              <div key={hour} className="border-b">
-                <div className="px-3 py-1 bg-gray-50 sticky top-12 z-10">
-                  {parseInt(hour) === 0 ? '12 AM' : 
-                    parseInt(hour) < 12 ? `${hour} AM` : 
-                    parseInt(hour) === 12 ? '12 PM' : 
-                    `${parseInt(hour) - 12} PM`}
-                </div>
-                <div className="p-2">
-                  {hourLogs.map(log => (
-                    <WorkLogBlock 
-                      key={log.id} 
-                      event={log}
-                      onClick={() => handleLogClick(log)}
-                    />
-                  ))}
-                </div>
-              </div>
-            )
-          ))}
-          
-          {workLogs.length === 0 && (
-            <div className="p-8 text-center text-gray-500">
-              No work logs for this day. Use the timer to track your work or click and drag on the calendar to create a new log.
-            </div>
-          )}
         </div>
       </div>
 

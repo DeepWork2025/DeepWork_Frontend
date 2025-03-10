@@ -1,55 +1,33 @@
-const API_URL = 'http://localhost:5001/events'; // Replace with actual API endpoint
+// Storage key for localStorage
+const STORAGE_KEY = "calendarEvents";
 
-export const fetchEvents = async () => {
-  try {
-    const response = await fetch(API_URL);
-    if (!response.ok) throw new Error('Failed to fetch events');
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return [];
-  }
+export const getEvents = () => {
+  const storedEvents = localStorage.getItem(STORAGE_KEY);
+  return storedEvents ? JSON.parse(storedEvents) : [];
 };
 
-export const createEvent = async (eventData) => {
-  try {
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData)
-    });
-    if (!response.ok) throw new Error('Failed to create event');
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+export const saveEvents = (events) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
 };
 
-export const updateEvent = async (eventData) => {
-  try {
-    const response = await fetch(`${API_URL}/${eventData.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData)
-    });
-    if (!response.ok) throw new Error('Failed to update event');
-    return await response.json();
-  } catch (error) {
-    console.error(error);
-    return null;
-  }
+export const deleteEvent = (eventId) => {
+  const events = getEvents().filter(event => event.id !== eventId);
+  saveEvents(events);
+  return events;
 };
 
-export const deleteEvent = async (eventId) => {
-  try {
-    const response = await fetch(`${API_URL}/${eventId}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Failed to delete event');
-    return true;
-  } catch (error) {
-    console.error(error);
-    return false;
+export const addOrUpdateEvent = (eventData) => {
+  let events = getEvents();
+
+  if (eventData.id) {
+    // Update existing event
+    events = events.map(event => (event.id === eventData.id ? eventData : event));
+  } else {
+    // Create new event with unique ID
+    eventData.id = Date.now().toString();
+    events.push(eventData);
   }
+
+  saveEvents(events);
+  return events;
 };
