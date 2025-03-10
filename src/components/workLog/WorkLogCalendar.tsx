@@ -107,16 +107,8 @@ const WorkLogCalendar: React.FC = () => {
   }));
 
   return (
-    <div className="p-4">
-      <h2 className="text-lg font-semibold mb-4">
-        Work Log: {date ? date.toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
-        }) : 'No date selected'}
-      </h2>
-
-      <div className="flex gap-4">
+    <div>
+      <div className="flex">
         {/* Full Calendar Component */}
         <div className="flex-1 bg-white rounded-lg shadow-md overflow-hidden">
           <FullCalendar
@@ -132,14 +124,12 @@ const WorkLogCalendar: React.FC = () => {
             dateClick={handleDateClick}
             select={handleSelectTimeSlot}
             height="auto"
-            slotMinTime="06:00:00"
-            slotMaxTime="22:00:00"
             expandRows={true}
             allDaySlot={false}
             nowIndicator={true}
-            // slotLabelDidMount={(info) => {
-            //   info.el.style.display = "none"; // Hides time labels (8:00, 9:00, etc.)
-            // }}
+            slotLabelDidMount={(info) => {
+              info.el.style.display = "none"; // Hides time labels (8:00, 9:00, etc.)
+            }}
           />
         </div>
       </div>

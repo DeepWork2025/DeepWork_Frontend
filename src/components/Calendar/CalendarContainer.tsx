@@ -56,21 +56,24 @@ const CalendarContainer = () => {
         </button>
       </div>
 
-      {/* Left: Day Calendar */}
-      <div ref={leftCalendarRef} className="w-1/2 bg-gray-100 p-4">
-        <FullCalendarWrapper
-        events={events}
-        onEventClick={handleEventClick}
-        />
+    {/* Calendars Section */}
+    <div className="flex w-full space-x-4">
+        {/* Left: Day Calendar */}
+        <div ref={leftCalendarRef} className="w-1/2 bg-gray-100 p-4">
+          <FullCalendarWrapper
+            events={events}
+            onEventClick={handleEventClick}
+          />
+        </div>
+
+        {/* Right: WorkLog Calendar */}
+        <div ref={rightCalendarRef} className="w-1/2 bg-gray-100 p-4">
+          <WorkLogCalendar />
+        </div>
       </div>
 
-      {/* Right: WorkLog Calendar */}
-      <div ref={rightCalendarRef} className="w-1/2 bg-gray-100 p-4">
-        <WorkLogCalendar />
-      </div>
-
-            {/* Event Form Modal */}
-            {isFormOpen && (
+      {/* Event Form Modal */}
+      {isFormOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <EventForm
             event={selectedEvent || {}}
