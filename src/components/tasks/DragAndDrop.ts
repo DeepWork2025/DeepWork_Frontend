@@ -1,143 +1,176 @@
-import { MutableRefObject } from "react";
+import { useDrag, useDrop } from "react-dnd";
+import { useRef } from "react";
 
-interface Subtask {
-  text: string;
-  completed: boolean;
-}
+// Define item types for drag and drop
+export const ItemTypes = {
+  TASK: "task",
+  SUBTASK: "subtask",
+};
 
-interface Task {
-  text: string;
-  completed: boolean;
-  subtasks: Subtask[];
-  isExpanded: boolean;
-}
-
-interface DragItem {
-  type: "task" | "subtask";
+// Interface for drag items
+export interface DragItem {
+  type: string;
   taskIndex: number;
   subtaskIndex?: number;
+  id: string;
 }
 
-export default function createDragAndDrop(
-  tasks: Task[],
-  setTasks: React.Dispatch<React.SetStateAction<Task[]>>,
-  dragItem: MutableRefObject<DragItem | null>,
-  dragNode: MutableRefObject<HTMLElement | null>
+// Hook for making a task draggable and a drop target for subtasks
+export function useTaskDragDrop(
+  taskIndex: number,
+  taskId: string,
+  moveSubtaskToTask: (
+    sourceTaskIndex: number,
+    subtaskIndex: number,
+    targetTaskIndex: number
+  ) => void,
+  moveTaskToSubtask: (sourceTaskIndex: number, targetTaskIndex: number) => void
 ) {
-  // 🚀 任务拖拽开始
-  const handleDragStart = (e: React.DragEvent, item: DragItem) => {
-    dragItem.current = item;
-    dragNode.current = e.currentTarget as HTMLElement;
-    e.dataTransfer.effectAllowed = "move";
-  };
+  const ref = useRef<HTMLLIElement>(null);
 
-  // 🎯 任务拖拽悬停
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
+  // Make task draggable
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.TASK,
+    item: { type: ItemTypes.TASK, taskIndex, id: taskId },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
 
-  // 🎯 处理任务拖放
-  const handleDrop = (e: React.DragEvent, targetItem: DragItem) => {
-    e.preventDefault();
-
-    if (!dragItem.current) return;
-
-    const { type, taskIndex, subtaskIndex } = dragItem.current;
-
-    if (type === "task") {
-      // 🏷️ 拖动任务
-      moveTask(taskIndex, targetItem.taskIndex);
-    } else if (type === "subtask") {
-      // 🏷️ 拖动子任务
-      moveSubtask(taskIndex, subtaskIndex!, targetItem.taskIndex);
-    }
-
-    dragItem.current = null;
-    dragNode.current = null;
-  };
-
-  // 🏷️ 任务拖拽到根部（变成独立任务）
-  const handleDropOnRoot = (e: React.DragEvent) => {
-    e.preventDefault();
-    if (!dragItem.current || dragItem.current.type !== "subtask") return;
-
-    const { taskIndex, subtaskIndex } = dragItem.current;
-    extractSubtask(taskIndex, subtaskIndex!);
-
-    dragItem.current = null;
-    dragNode.current = null;
-  };
-
-  // 🏷️ 任务拖拽到根部（允许任务排序）
-  const handleRootDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-  };
-
-  // 🔄 交换任务位置
-  const moveTask = (fromIndex: number, toIndex: number) => {
-    if (fromIndex === toIndex) return;
-    setTasks((prev) => {
-      const updatedTasks = [...prev];
-      const [movedTask] = updatedTasks.splice(fromIndex, 1);
-      updatedTasks.splice(toIndex, 0, movedTask);
-      return updatedTasks;
-    });
-  };
-
-  // 🔄 子任务变成另一个任务的子任务
-  const moveSubtask = (
-    fromTaskIndex: number,
-    fromSubtaskIndex: number,
-    toTaskIndex: number
-  ) => {
-    if (fromTaskIndex === toTaskIndex) return;
-
-    setTasks((prev) => {
-      const updatedTasks = [...prev];
-
-      // 取出原来的子任务
-      const [movedSubtask] = updatedTasks[fromTaskIndex].subtasks.splice(
-        fromSubtaskIndex,
-        1
+  // Make task a drop target for subtasks
+  const [{ isOver }, drop] = useDrop({
+    accept: [ItemTypes.SUBTASK, ItemTypes.TASK],
+    drop: (item: DragItem) => {
+      if (item.type === ItemTypes.SUBTASK && item.subtaskIndex !== undefined) {
+        // A subtask was dropped on this task - move it to become a subtask of this task
+        moveSubtaskToTask(item.taskIndex, item.subtaskIndex, taskIndex);
+      } else if (item.type === ItemTypes.TASK) {
+        // A task was dropped on this task - move it to become a subtask of this task
+        moveTaskToSubtask(item.taskIndex, taskIndex);
+      }
+    },
+    // Don't allow dropping on itself
+    canDrop: (item: DragItem) => {
+      return (
+        item.type === ItemTypes.SUBTASK ||
+        (item.type === ItemTypes.TASK && item.taskIndex !== taskIndex)
       );
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver() && monitor.canDrop(),
+    }),
+  });
 
-      // 插入到目标任务的 `subtasks` 里
-      updatedTasks[toTaskIndex].subtasks.push(movedSubtask);
+  // Apply both drag and drop refs to the element
+  drag(drop(ref));
 
-      return updatedTasks;
-    });
-  };
+  return { ref, isDragging, isOver };
+}
 
-  // 🔄 子任务拖到根部，变成独立任务
-  const extractSubtask = (fromTaskIndex: number, fromSubtaskIndex: number) => {
-    setTasks((prev) => {
-      const updatedTasks = [...prev];
+// Hook for making a subtask draggable
+export function useSubtaskDragDrop(
+  taskIndex: number,
+  subtaskIndex: number,
+  subtaskId: string,
+  moveSubtaskToTask: (
+    sourceTaskIndex: number,
+    subtaskIndex: number,
+    targetTaskIndex?: number
+  ) => void
+) {
+  const ref = useRef<HTMLLIElement>(null);
 
-      // 取出原来的子任务
-      const [movedSubtask] = updatedTasks[fromTaskIndex].subtasks.splice(
-        fromSubtaskIndex,
-        1
-      );
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.SUBTASK,
+    item: {
+      type: ItemTypes.SUBTASK,
+      taskIndex,
+      subtaskIndex,
+      id: subtaskId,
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
 
-      // 变成新任务
-      updatedTasks.push({
-        text: movedSubtask.text,
-        completed: movedSubtask.completed,
-        subtasks: [],
-        isExpanded: false,
-      });
+  drag(ref);
 
-      return updatedTasks;
-    });
-  };
+  return { ref, isDragging };
+}
+
+// Add this new hook
+export const useTaskReorderDragDrop = (index, id, moveTask) => {
+  const ref = useRef(null);
+
+  const [{ isDragging }, drag] = useDrag({
+    type: ItemTypes.TASK,
+    item: { type: ItemTypes.TASK, id, index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  const [{ isOver }, drop] = useDrop({
+    accept: ItemTypes.TASK,
+    hover: (item, monitor) => {
+      if (!ref.current) {
+        return;
+      }
+
+      const dragIndex = item.index;
+      const hoverIndex = index;
+
+      // Don't replace items with themselves
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+
+      // Determine rectangle on screen
+      const hoverBoundingRect = ref.current.getBoundingClientRect();
+
+      // Get vertical middle
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
+
+      // Get pixels to the top
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+      // Only perform the move when the mouse has crossed half of the items height
+      // When dragging downwards, only move when the cursor is below 50%
+      // When dragging upwards, only move when the cursor is above 50%
+
+      // Dragging downwards
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
+        return;
+      }
+
+      // Dragging upwards
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
+        return;
+      }
+
+      // Time to actually perform the action
+      moveTask(dragIndex, hoverIndex);
+
+      // Note: we're mutating the monitor item here!
+      // Generally it's better to avoid mutations,
+      // but it's good here for the sake of performance
+      // to avoid expensive index searches.
+      item.index = hoverIndex;
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
+  drag(drop(ref));
 
   return {
-    handleDragStart,
-    handleDragOver,
-    handleDrop,
-    handleDropOnRoot,
-    handleRootDragOver,
+    ref,
+    isDragging,
+    isOver,
   };
-}
+};
