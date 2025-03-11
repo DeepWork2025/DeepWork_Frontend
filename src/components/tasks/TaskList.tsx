@@ -1,11 +1,10 @@
-"use client";
-
 import type React from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useTaskDragDrop, useSubtaskDragDrop, ItemTypes } from "./DragAndDrop";
-import { SubtaskContextMenu } from "./SubContextMenu";
+import { SubtaskContextMenu } from "./SubtaskContextMenu";
+import { TaskContextMenu } from "./TaskContextMenu";
 
 interface Subtask {
   id: string;
@@ -29,6 +28,7 @@ const SubtaskItem = ({
   toggleSubtask,
   moveSubtaskToTask,
   convertSubtaskToTask,
+  deleteSubtask,
 }) => {
   const { ref, isDragging } = useSubtaskDragDrop(
     taskIndex,
@@ -60,6 +60,7 @@ const SubtaskItem = ({
         taskIndex={taskIndex}
         subtaskIndex={subtaskIndex}
         convertSubtaskToTask={convertSubtaskToTask}
+        deleteSubtask={deleteSubtask}
       />
     </li>
   );
@@ -75,18 +76,22 @@ const TaskItem = ({
   handleAddSubtaskClick,
   moveSubtaskToTask,
   moveTaskToSubtask,
+  reorderTask,
   activeTaskIndex,
   newSubtask,
   handleSubtaskInputChange,
   handleBlurSubtaskInput,
   addSubtask,
   convertSubtaskToTask,
+  deleteTask,
+  deleteSubtask,
 }) => {
   const { ref, isDragging, isOver } = useTaskDragDrop(
     index,
     task.id,
     moveSubtaskToTask,
-    moveTaskToSubtask
+    moveTaskToSubtask,
+    reorderTask
   );
 
   return (
@@ -108,30 +113,20 @@ const TaskItem = ({
         <span
           className={`flex-grow ${
             task.completed ? "line-through text-gray-500" : ""
-          }`}
+          } cursor-pointer`}
+          onClick={() => task.subtasks.length > 0 && toggleSubtasks(index)}
         >
           {task.text}
         </span>
 
-        <button
-          type="button"
-          className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity absolute right-10 text-gray-500 hover:text-gray-700"
-          onClick={() => handleAddSubtaskClick(index)}
-          title="Add subtask"
-        >
-          +
-        </button>
-
-        {(task.subtasks.length > 0 || task.isExpanded) && (
-          <button
-            type="button"
-            className="w-8 h-8 text-gray-500 hover:text-gray-700"
-            onClick={() => toggleSubtasks(index)}
-            title={task.isExpanded ? "Hide subtasks" : "Show subtasks"}
-          >
-            {task.isExpanded ? "▼" : "►"}
-          </button>
-        )}
+        <TaskContextMenu
+          taskIndex={index}
+          handleAddSubtaskClick={handleAddSubtaskClick}
+          deleteTask={deleteTask}
+          toggleSubtasks={toggleSubtasks}
+          hasSubtasks={task.subtasks.length > 0}
+          isExpanded={task.isExpanded}
+        />
       </div>
 
       {task.isExpanded && (
@@ -146,6 +141,7 @@ const TaskItem = ({
                 toggleSubtask={toggleSubtask}
                 moveSubtaskToTask={moveSubtaskToTask}
                 convertSubtaskToTask={convertSubtaskToTask}
+                deleteSubtask={deleteSubtask}
               />
             ))}
           </ul>
@@ -191,12 +187,6 @@ const AddTaskForm = ({ newTask, setNewTask, addTask }) => {
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
         />
-        <button
-          type="submit"
-          className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 hover:text-gray-700"
-          disabled={newTask.trim() === ""}
-          title="Add task"
-        ></button>
       </form>
     </li>
   );
@@ -464,9 +454,42 @@ export default function TaskList() {
     });
   };
 
+  // Reorder tasks by dragging
+  const reorderTask = useCallback((dragIndex: number, hoverIndex: number) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = [...prevTasks];
+      // Remove the dragged task
+      const draggedTask = updatedTasks[dragIndex];
+      // Remove it from the array
+      updatedTasks.splice(dragIndex, 1);
+      // Insert it at the new position
+      updatedTasks.splice(hoverIndex, 0, draggedTask);
+      return updatedTasks;
+    });
+  }, []);
+
+  // Delete a task
+  const deleteTask = (taskIndex: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.filter((_, index) => index !== taskIndex)
+    );
+  };
+
   // Add a button to convert a subtask to a task
   const convertSubtaskToTask = (taskIndex: number, subtaskIndex: number) => {
     moveSubtaskToTask(taskIndex, subtaskIndex);
+  };
+
+  // Delete a subtask
+  const deleteSubtask = (taskIndex: number, subtaskIndex: number) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = [...prevTasks];
+      // Filter out the subtask to be deleted
+      updatedTasks[taskIndex].subtasks = updatedTasks[
+        taskIndex
+      ].subtasks.filter((_, index) => index !== subtaskIndex);
+      return updatedTasks;
+    });
   };
 
   return (
@@ -487,12 +510,15 @@ export default function TaskList() {
                 handleAddSubtaskClick={handleAddSubtaskClick}
                 moveSubtaskToTask={moveSubtaskToTask}
                 moveTaskToSubtask={moveTaskToSubtask}
+                reorderTask={reorderTask}
                 activeTaskIndex={activeTaskIndex}
                 newSubtask={newSubtask}
                 handleSubtaskInputChange={handleSubtaskInputChange}
                 handleBlurSubtaskInput={handleBlurSubtaskInput}
                 addSubtask={addSubtask}
                 convertSubtaskToTask={convertSubtaskToTask}
+                deleteTask={deleteTask}
+                deleteSubtask={deleteSubtask}
               />
             ))}
 
