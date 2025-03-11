@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
-import { EventInput, EventClickArg, DateSelectArg } from '@fullcalendar/core';
+import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import * as eventService from '../api/eventService.ts';
+import {Event} from '@fullcalendar/core';
 
 export const useCalendarEvents = () => {
 
@@ -9,12 +10,13 @@ export const useCalendarEvents = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   // load events on mount
-  useEffect(()=>{
-    setEvents(eventService.getEvents());
+  useEffect(() => {
+    const storedEvents = eventService.getEvents();
+    setEvents(storedEvents);
   }, []);
 
-  // save events whenever there's change.
-  useEffect(()=>{
+  // save events whenever there's a change
+  useEffect(() => {
     eventService.saveEvents(events);
   }, [events]);
 
@@ -70,6 +72,40 @@ export const useCalendarEvents = () => {
     setSelectedEvent(null);
   }, []);
 
+// Handle event drop (dragging an event)
+const handleEventDrop = useCallback((eventDropInfo: EventDropArg) => {
+  const { event } = eventDropInfo;
+  const updatedEvent = {
+    ...event,
+    start: event.start,
+    end: event.end,
+  };
+
+    // Update the events in state
+    const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
+    setEvents(updatedEvents);
+
+  // Optionally, save updated events to the backend
+  eventService.saveEvents(events);  // Save the updated event to the server
+}, [events]);
+
+// Handle event resize (resize an event)
+const handleEventResize = useCallback((info: { event: Event; el: HTMLElement; view: any }) => {
+  const { event } = info;
+  const updatedEvent = {
+    ...event,
+    start: event.start,
+    end: event.end,
+  };
+
+  // Update the events in state
+  const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
+  setEvents(updatedEvents);
+
+  // Optionally, save updated events to the backend
+  eventService.saveEvents(events);  // Save the updated event to the server
+}, [events]);
+
   return {
     events,
     selectedEvent,
@@ -78,6 +114,8 @@ export const useCalendarEvents = () => {
     handleEventClick,
     handleDateSelect,
     handleSaveEvent,
-    handleDeleteEvent
+    handleDeleteEvent,
+    handleEventDrop,
+    handleEventResize
   };
 };

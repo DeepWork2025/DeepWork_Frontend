@@ -4,6 +4,7 @@ import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import FullCalendarWrapper from "./FullCalendarWrapper";
 
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
+import ToolBar from "./ToolBar";
 
 const CalendarContainer = () => {
   const {
@@ -42,11 +43,11 @@ const CalendarContainer = () => {
   }, []);
 
   return (
-    <div className="flex flex-col w-full space-x-4">
-      <div className="flex justify-between items-center p-4 bg-white shadow w-full">
+    <div className="flex flex-col w-full">
+      <div className="flex justify-between items-center  bg-white shadow w-full">
         {/* Header section with full row.*/}
-        <header className="p-4 bg-white shadow">
-          <h1 className="text-2xl font-bold">Calendar</h1>
+        <header className="p-4 bg-white">
+          <h1 className="text-2xl"><b>Today</b><span> 11 Mar, Tuesday</span></h1>
         </header>
         <button
           onClick={handleAddEvent}
@@ -56,10 +57,13 @@ const CalendarContainer = () => {
         </button>
       </div>
 
+      {/* Tool Bar */}
+      <ToolBar />
+
     {/* Calendars Section */}
-    <div className="flex w-full space-x-4">
+    <div className="flex w-full">
         {/* Left: Day Calendar */}
-        <div ref={leftCalendarRef} className="w-1/2 bg-gray-100 p-4">
+        <div ref={leftCalendarRef} className="w-1/2 bg-gray-100">
           <FullCalendarWrapper
             events={events}
             onEventClick={handleEventClick}
@@ -67,7 +71,7 @@ const CalendarContainer = () => {
         </div>
 
         {/* Right: WorkLog Calendar */}
-        <div ref={rightCalendarRef} className="w-1/2 bg-gray-100 p-4">
+        <div ref={rightCalendarRef} className="w-1/2 bg-gray-100">
           <WorkLogCalendar />
         </div>
       </div>

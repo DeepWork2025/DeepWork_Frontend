@@ -6,7 +6,6 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg } from '@fullcalendar/core';
 import * as workLogService from '../../api/workLogService';
 import { WorkLogData } from '../../types/workLog.type';
-import WorkLogBlock from './WorkLogBlock';
 
 interface GroupedLogs {
   [hour: string]: WorkLogData[];
@@ -115,6 +114,7 @@ const WorkLogCalendar: React.FC = () => {
             plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
             headerToolbar={false}
+            dayHeaders={false}
             selectable={true}
             selectMirror={true}
             dayMaxEvents={true}
