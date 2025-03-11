@@ -1,8 +1,15 @@
+"use client";
+
 import type React from "react";
 import { useState, useCallback } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { useTaskDragDrop, useSubtaskDragDrop, ItemTypes } from "./DragAndDrop";
+import {
+  useTaskReorderDragDrop,
+  useTaskSubtaskConversion,
+  useSubtaskDragDrop,
+  ItemTypes,
+} from "./DragAndDrop";
 import { SubtaskContextMenu } from "./SubtaskContextMenu";
 import { TaskContextMenu } from "./TaskContextMenu";
 
@@ -86,22 +93,30 @@ const TaskItem = ({
   deleteTask,
   deleteSubtask,
 }) => {
-  const { ref, isDragging, isOver } = useTaskDragDrop(
-    index,
-    task.id,
-    moveSubtaskToTask,
-    moveTaskToSubtask,
-    reorderTask
-  );
+  // Use the reordering hook for the list item
+  const {
+    ref,
+    isDragging,
+    isOver: isOverForReorder,
+  } = useTaskReorderDragDrop(index, task.id, reorderTask);
+
+  // Use the subtask conversion hook for the task content div
+  const { ref: contentRef, isOver: isOverForConversion } =
+    useTaskSubtaskConversion(index, moveSubtaskToTask, moveTaskToSubtask);
 
   return (
     <li
       ref={ref}
       className={`space-y-2 ${isDragging ? "opacity-50" : ""} ${
-        isOver ? "bg-gray-100 rounded" : ""
+        isOverForReorder ? "bg-gray-100 rounded" : ""
       }`}
     >
-      <div className="flex items-center gap-3 group relative">
+      <div
+        ref={contentRef}
+        className={`flex items-center gap-3 group relative ${
+          isOverForConversion ? "bg-blue-50 rounded p-1" : ""
+        }`}
+      >
         <button
           type="button"
           onClick={() => toggleTask(index)}
@@ -193,7 +208,6 @@ const AddTaskForm = ({ newTask, setNewTask, addTask }) => {
 };
 
 // Root drop area component
-// Modified RootDropArea component
 const RootDropArea = ({ moveSubtaskToTask, children }) => {
   const [{ isOver }, drop] = useDrop({
     accept: ItemTypes.SUBTASK,
@@ -349,7 +363,6 @@ export default function TaskList() {
   };
 
   // Move a subtask to become a main task or another task's subtask
-  // Modified moveSubtaskToTask function
   const moveSubtaskToTask = (
     sourceTaskIndex: number,
     subtaskIndex: number,
@@ -414,9 +427,28 @@ export default function TaskList() {
     sourceTaskIndex: number,
     targetTaskIndex: number
   ) => {
+    console.log(
+      `Moving task ${sourceTaskIndex} to become subtask of ${targetTaskIndex}`
+    );
+
     setTasks((prevTasks) => {
       // Don't allow a task to become its own subtask
       if (sourceTaskIndex === targetTaskIndex) return prevTasks;
+
+      // Check if indices are valid
+      if (
+        sourceTaskIndex < 0 ||
+        sourceTaskIndex >= prevTasks.length ||
+        targetTaskIndex < 0 ||
+        targetTaskIndex >= prevTasks.length
+      ) {
+        console.error(
+          "Invalid task indices:",
+          sourceTaskIndex,
+          targetTaskIndex
+        );
+        return prevTasks;
+      }
 
       const updatedTasks = [...prevTasks];
 
