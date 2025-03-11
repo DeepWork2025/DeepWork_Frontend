@@ -1,59 +1,42 @@
 import { useState, useCallback, useEffect } from 'react';
-import { EventInput, EventClickArg, DateSelectArg } from '@fullcalendar/core';
-
-// Storage key for localStorage
-const STORAGE_KEY = 'calendar_events';
-
-// Helper functions to replace API calls
-const getEventsFromStorage = (): EventInput[] => {
-  const storedEvents = localStorage.getItem(STORAGE_KEY);
-  return storedEvents ? JSON.parse(storedEvents) : [];
-};
-
-const saveEventsToStorage = (events: EventInput[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-};
+import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import * as eventService from '../api/eventService.ts';
+import {Event} from '@fullcalendar/core';
 
 export const useCalendarEvents = () => {
+
   const [events, setEvents] = useState<EventInput[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-   // Load events from localStorage on initial mount
-   useEffect(() => {
-    const loadedEvents = getEventsFromStorage();
-    setEvents(loadedEvents);
+  // load events on mount
+  useEffect(() => {
+    const storedEvents = eventService.getEvents();
+    setEvents(storedEvents);
   }, []);
 
-  // Save events to localStorage whenever they change
+  // save events whenever there's a change
   useEffect(() => {
-    saveEventsToStorage(events);
+    eventService.saveEvents(events);
   }, [events]);
 
   const handleEventClick = useCallback((clickInfo: EventClickArg) => {
-    // Extract the event data we need
-    const { id, title, start, end, extendedProps, allDay } = clickInfo.event;
+    const {id, title, start, end, extendedProps, allDay} = clickInfo.event;
 
-    // Format the event for the form
-    const eventForForm = {
+    setSelectedEvent({
       id,
       title,
-      start,
-      end,
+      start: start || new Date(),
+      end: end || new Date(),
       allDay,
       description: extendedProps?.description || '',
       backgroundColor: extendedProps?.backgroundColor || '#3788d8'
-    };
-
-    setSelectedEvent(eventForForm);
+    });
     setIsFormOpen(true);
   }, []);
 
   const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
-    // For new events, use the selected date and time
     const startDate = new Date(selectInfo.start);
-
-    // Calculate end date (default to 1 hour after start)
     const endDate = new Date(selectInfo.start);
     endDate.setHours(endDate.getHours() + 1);
 
@@ -66,67 +49,62 @@ export const useCalendarEvents = () => {
     });
 
     setIsFormOpen(true);
-    selectInfo.view.calendar.unselect(); // clear date selection
+    selectInfo.view.calendar.unselect();
   }, []);
 
-  const handleEventDrop = useCallback((dropInfo: any) => {
-    const { id, start, end, allDay, title, extendedProps } = dropInfo.event;
-
-    const updatedEvent = {
-      id,
-      title,
-      start,
-      end,
-      allDay,
-      ...extendedProps
-    };
-
-    setEvents(prev => prev.map(event => 
-      event.id === updatedEvent.id ? updatedEvent : event
-    ));
-  }, []);
-
-  const handleEventResize = useCallback((resizeInfo: any) => {
-    const { id, start, end, allDay, title, extendedProps } = resizeInfo.event;
-    
-    const updatedEvent = {
-      id,
-      title,
-      start,
-      end,
-      allDay,
-      ...extendedProps
-    };
-    
-    setEvents(prev => prev.map(event => 
-      event.id === updatedEvent.id ? updatedEvent : event
-    ));
-  }, []);
-
+  // Save the event and close the form
   const handleSaveEvent = useCallback((eventData: EventInput) => {
-    if (eventData.id) {
-      // Update existing event
-      setEvents(prev => prev.map(event => 
-        event.id === eventData.id ? eventData : event
-      ));
-    } else {
-      // Create new event with unique ID
-      const newEvent = {
-        ...eventData,
-        id: Date.now().toString(), // Simple unique ID generation
-      };
-      setEvents(prev => [...prev, newEvent]);
-    }
+    const updatedEvents = eventService.addOrUpdateEvent(eventData);
+    setEvents(updatedEvents);  // Update the events state
 
+    // Close the form after saving the event
     setIsFormOpen(false);
     setSelectedEvent(null);
   }, []);
 
+  // Delete an event and close the form
   const handleDeleteEvent = useCallback((eventId: string) => {
-    setEvents(prev => prev.filter(event => event.id !== eventId));
+    const updatedEvents = eventService.deleteEvent(eventId);
+    setEvents(updatedEvents);  // Update the events state
+
+    // Close the form after deleting the event
     setIsFormOpen(false);
     setSelectedEvent(null);
   }, []);
+
+// Handle event drop (dragging an event)
+const handleEventDrop = useCallback((eventDropInfo: EventDropArg) => {
+  const { event } = eventDropInfo;
+  const updatedEvent = {
+    ...event,
+    start: event.start,
+    end: event.end,
+  };
+
+    // Update the events in state
+    const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
+    setEvents(updatedEvents);
+
+  // Optionally, save updated events to the backend
+  eventService.saveEvents(events);  // Save the updated event to the server
+}, [events]);
+
+// Handle event resize (resize an event)
+const handleEventResize = useCallback((info: { event: Event; el: HTMLElement; view: any }) => {
+  const { event } = info;
+  const updatedEvent = {
+    ...event,
+    start: event.start,
+    end: event.end,
+  };
+
+  // Update the events in state
+  const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
+  setEvents(updatedEvents);
+
+  // Optionally, save updated events to the backend
+  eventService.saveEvents(events);  // Save the updated event to the server
+}, [events]);
 
   return {
     events,
@@ -135,9 +113,9 @@ export const useCalendarEvents = () => {
     setIsFormOpen,
     handleEventClick,
     handleDateSelect,
-    handleEventDrop,
-    handleEventResize,
     handleSaveEvent,
-    handleDeleteEvent
+    handleDeleteEvent,
+    handleEventDrop,
+    handleEventResize
   };
 };
