@@ -44,7 +44,7 @@ const Navbar: React.FC = () => {
             <a>Settings</a>
           </li>
           <li>
-            <a>Logout</a>
+            <button onClick={handleLogout}>Logout</button>
           </li>
         </ul>
       </div>
