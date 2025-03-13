@@ -1,0 +1,106 @@
+import React, { useState } from "react";
+import FullCalendarWrapper from "../calendar/FullCalendarWrapper";
+import TaskList from "./TaskList";
+import {
+  convertTasksToCalendarEvents,
+  updateTaskFromCalendarEvent,
+  toggleTaskCompletionFromEvent,
+} from "./ConvertTaskToCalendaeEvents";
+
+// Define task-related interfaces if not imported
+interface Subtask {
+  id: string;
+  text: string;
+  completed: boolean;
+}
+
+interface Task {
+  id: string;
+  text: string;
+  completed: boolean;
+  subtasks: Subtask[];
+  isExpanded: boolean;
+  dueDate?: string;
+}
+
+const TaskCalendarIntegration: React.FC = () => {
+  const [view, setView] = useState<"tasks" | "calendar">("tasks");
+  const [tasks, setTasks] = useState<Task[]>([]);
+
+  // Custom event handlers for calendar integration
+  const handleEventDrop = (info: any) => {
+    const eventId = info.event.id;
+    const newStartTime = info.event.start.toISOString();
+    const newEndTime = info.event.end.toISOString();
+
+    // Update tasks based on the calendar event change
+    setTasks((prevTasks) =>
+      updateTaskFromCalendarEvent(
+        prevTasks,
+        Number(eventId),
+        newStartTime,
+        newEndTime
+      )
+    );
+  };
+
+  const handleEventClick = (info: any) => {
+    const eventId = info.event.id;
+
+    // Toggle task completion when clicked
+    setTasks((prevTasks) =>
+      toggleTaskCompletionFromEvent(prevTasks, Number(eventId))
+    );
+  };
+
+  // Function to convert tasks to calendar events
+  const getCalendarEvents = () => {
+    return convertTasksToCalendarEvents(tasks);
+  };
+
+  return (
+    <div className="h-screen flex flex-col">
+      {/* View Toggle Buttons */}
+      <div className="bg-white p-4 border-b flex">
+        <button
+          onClick={() => setView("tasks")}
+          className={`px-4 py-2 rounded-md mr-2 ${
+            view === "tasks"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Tasks
+        </button>
+        <button
+          onClick={() => setView("calendar")}
+          className={`px-4 py-2 rounded-md ${
+            view === "calendar"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
+          Calendar
+        </button>
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 overflow-auto">
+        {view === "tasks" ? (
+          <TaskList tasks={tasks} setTasks={setTasks} />
+        ) : (
+          <div className="p-4">
+            {/* Custom props to pass to your calendar wrapper */}
+            <FullCalendarWrapper
+              customEvents={getCalendarEvents()}
+              onEventDrop={handleEventDrop}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default TaskCalendarIntegration;
