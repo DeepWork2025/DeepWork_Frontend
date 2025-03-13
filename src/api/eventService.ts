@@ -3,29 +3,31 @@ import { EventData } from "../types/event.types";
 // Storage key for localStorage
 const STORAGE_KEY = "calendarEvents";
 
+interface EventDataWithStartEnd extends Partial<EventData> {
+  start?: Date | string;
+  end?: Date | string;
+}
+
 // Helper function to ensure dates are properly formatted
-const processDates = (event: Partial<EventData>) => {
+const processDates = (event: EventDataWithStartEnd) => {
   // Create a new object to avoid modifying the original
   const processedEvent = { ...event };
   
   // Helper function to safely convert to ISO string
   const toISOString = (date: unknown): string => {
     if (!date) return new Date().toISOString();
-    if (typeof date === 'string') return date;
+    if (typeof date === 'string') return new Date(date).toISOString();
     if (date instanceof Date) return date.toISOString();
     return new Date().toISOString();
   };
   
-  // Convert start/end to startTime/endTime if needed
-  if ('start' in processedEvent) {
-    processedEvent.startTime = toISOString(processedEvent.start);
-    delete processedEvent.start;
-  }
+  // Always ensure startTime and endTime are set
+  processedEvent.startTime = processedEvent.startTime || toISOString(processedEvent.start);
+  processedEvent.endTime = processedEvent.endTime || toISOString(processedEvent.end);
   
-  if ('end' in processedEvent) {
-    processedEvent.endTime = toISOString(processedEvent.end);
-    delete processedEvent.end;
-  }
+  // Clean up start/end if they exist
+  delete processedEvent.start;
+  delete processedEvent.end;
   
   return processedEvent;
 };
@@ -92,11 +94,11 @@ export const deleteEvent = (eventId: number) => {
   return updatedEvents;
 };
 
-export const addOrUpdateEvent = (eventData: Partial<EventData>) => {
+export const addOrUpdateEvent = (eventData: EventDataWithStartEnd) => {
   const events = getEvents();
   
   // Process dates in the new/updated event
-  const processedEventData = processDates(eventData) as EventData;
+  const processedEventData = processDates(eventData);
 
   // Create new array to avoid mutation
   let updatedEvents: EventData[];
@@ -105,6 +107,7 @@ export const addOrUpdateEvent = (eventData: Partial<EventData>) => {
     // Update existing event
     updatedEvents = events.map(event => 
       event.id === processedEventData.id ? {
+        ...event,
         ...processedEventData,
         title: processedEventData.title || '',
         description: processedEventData.description || '',
@@ -114,10 +117,11 @@ export const addOrUpdateEvent = (eventData: Partial<EventData>) => {
     );
   } else {
     // Create new event with unique ID
-    const newEvent = {
-      ...processedEventData,
+    const newEvent: EventData = {
       id: Date.now(),
-      title: processedEventData.title || '',
+      title: processedEventData.title || 'New Event',
+      startTime: processedEventData.startTime || new Date().toISOString(),
+      endTime: processedEventData.endTime || new Date(Date.now() + 3600000).toISOString(),
       description: processedEventData.description || '',
       label: processedEventData.label || 'default',
       backgroundColor: processedEventData.backgroundColor || '#3788d8'

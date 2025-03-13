@@ -122,7 +122,6 @@ const WorkLogCalendar: React.FC = () => {
             events={calendarEvents}
             slotMinTime="00:00:00"
             slotMaxTime="24:00:00"
-            ScrollTop="08:00:00"
             height="auto"
             contentHeight="auto"
             eventClick={handleEventClick}
