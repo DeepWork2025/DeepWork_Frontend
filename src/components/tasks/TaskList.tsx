@@ -104,6 +104,9 @@ const TaskItem = ({
   const { ref: contentRef, isOver: isOverForConversion } =
     useTaskSubtaskConversion(index, moveSubtaskToTask, moveTaskToSubtask);
 
+  // Determine if we should show the subtask indicator
+  const hasHiddenSubtasks = task.subtasks.length > 0 && !task.isExpanded;
+
   return (
     <li
       ref={ref}
@@ -128,10 +131,52 @@ const TaskItem = ({
         <span
           className={`flex-grow ${
             task.completed ? "line-through text-gray-500" : ""
-          } cursor-pointer`}
+          } cursor-pointer flex items-center`}
           onClick={() => task.subtasks.length > 0 && toggleSubtasks(index)}
         >
           {task.text}
+
+          {/* Subtask indicator icon */}
+          {hasHiddenSubtasks && (
+            <span className="ml-2 text-gray-400 text-sm flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+              <span className="ml-1 text-xs">{task.subtasks.length}</span>
+            </span>
+          )}
+
+          {/* Expanded indicator */}
+          {task.subtasks.length > 0 && task.isExpanded && (
+            <span className="ml-2 text-gray-400 text-sm flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+              <span className="ml-1 text-xs">{task.subtasks.length}</span>
+            </span>
+          )}
         </span>
 
         <TaskContextMenu
@@ -183,7 +228,6 @@ const TaskItem = ({
     </li>
   );
 };
-
 // Add Task Form component
 const AddTaskForm = ({ newTask, setNewTask, addTask }) => {
   return (
