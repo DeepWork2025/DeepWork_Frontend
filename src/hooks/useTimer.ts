@@ -7,6 +7,7 @@ export const useTimer = () => {
     workLogService.getActiveLog()
   );
   const [elapsed, setElapsed] = useState(0);
+  const [totalWorkTime, setTotalWorkTime] = useState(() => workLogService.getTotalWorkTime());
   
   // Update elapsed time every second for active timer
   useEffect(() => {
@@ -20,6 +21,27 @@ export const useTimer = () => {
     
     return () => clearInterval(interval);
   }, [activeLog]);
+
+  // Update total work time when it changes
+  useEffect(() => {
+    const handleTotalTimeUpdate = (event: CustomEvent) => {
+      setTotalWorkTime(event.detail.totalTime);
+    };
+
+    // Listen for both storage and custom events
+    window.addEventListener('storage', () => {
+      setTotalWorkTime(workLogService.getTotalWorkTime());
+    });
+    
+    window.addEventListener('totalWorkTimeUpdate', handleTotalTimeUpdate as EventListener);
+    
+    return () => {
+      window.removeEventListener('storage', () => {
+        setTotalWorkTime(workLogService.getTotalWorkTime());
+      });
+      window.removeEventListener('totalWorkTimeUpdate', handleTotalTimeUpdate as EventListener);
+    };
+  }, []);
   
   const startTimer = useCallback((log: WorkLogData) => {
     const updatedLog = workLogService.startWorkLog(log);
@@ -36,12 +58,19 @@ export const useTimer = () => {
     }
     return null;
   }, [activeLog]);
+
+  const resetTotalTime = useCallback(() => {
+    workLogService.resetTotalWorkTime();
+    setTotalWorkTime(0);
+  }, []);
   
   return { 
     activeLog, 
     elapsed, 
     startTimer, 
     stopTimer,
-    isRunning: !!activeLog?.extendedProps.inProgress
+    isRunning: !!activeLog?.extendedProps.inProgress,
+    totalWorkTime,
+    resetTotalTime
   };
 };

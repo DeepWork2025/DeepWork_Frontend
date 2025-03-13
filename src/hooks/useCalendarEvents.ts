@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import { EventClickArg, DateSelectArg, EventDropArg, EventResizeDoneArg } from '@fullcalendar/core';
 import { EventData } from '../types/event.types';
 import { RootState, AppDispatch } from '../store';
 import * as actions from '../store/events/actions';
@@ -28,8 +28,7 @@ export const useCalendarEvents = () => {
       backgroundColor: '#3788d8'
     };
 
-    dispatch(actions.setSelectedEvent(eventData));
-    setIsFormOpen(true);
+    dispatch(actions.saveEvent(eventData));
     selectInfo.view.calendar.unselect(); // Clear the selection after creating the event
   }, [dispatch]);
 
@@ -60,7 +59,7 @@ export const useCalendarEvents = () => {
     dispatch(actions.saveEvent(eventData));
   }, [dispatch]);
 
-  const handleEventResize = useCallback((resizeInfo: EventDropArg) => {
+  const handleEventResize = useCallback((resizeInfo: EventResizeDoneArg) => {
     const eventData: EventData = {
       id: Number(resizeInfo.event.id),
       title: resizeInfo.event.title,

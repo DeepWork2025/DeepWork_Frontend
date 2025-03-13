@@ -3,7 +3,8 @@ import { WorkLogData } from "../types/workLog.type";
 export const STORAGE_KEYS = {
     WORK_LOGS: 'workLogs',
     ACTIVE_LOG: 'activeWorkLog',
-    CATEGORIES: 'workLogCategories'
+    CATEGORIES: 'workLogCategories',
+    TOTAL_WORK_TIME: 'totalWorkTime'
   };
 
   // Get work log by id
@@ -197,6 +198,12 @@ export const STORAGE_KEYS = {
       }
     };
     
+    // Calculate duration and update total work time
+    const startTime = new Date(log.start).getTime();
+    const endTime = new Date().getTime();
+    const duration = endTime - startTime;
+    updateTotalWorkTime(duration);
+    
     saveWorkLog(updatedLog);
     clearActiveLog();
     
@@ -332,4 +339,31 @@ export const STORAGE_KEYS = {
     localStorage.removeItem(STORAGE_KEYS.WORK_LOGS);
     localStorage.removeItem(STORAGE_KEYS.ACTIVE_LOG);
     localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
+  };
+
+  // Get total work time
+  export const getTotalWorkTime = (): number => {
+    const totalTime = localStorage.getItem(STORAGE_KEYS.TOTAL_WORK_TIME);
+    return totalTime ? parseInt(totalTime, 10) : 0;
+  };
+
+  // Update total work time
+  export const updateTotalWorkTime = (duration: number): void => {
+    const currentTotal = getTotalWorkTime();
+    const newTotal = currentTotal + duration;
+    localStorage.setItem(STORAGE_KEYS.TOTAL_WORK_TIME, newTotal.toString());
+    
+    // Dispatch custom event for same-window updates
+    window.dispatchEvent(new CustomEvent('totalWorkTimeUpdate', { 
+      detail: { totalTime: newTotal }
+    }));
+  };
+
+  // Reset total work time
+  export const resetTotalWorkTime = (): void => {
+    localStorage.setItem(STORAGE_KEYS.TOTAL_WORK_TIME, '0');
+    // Dispatch custom event for same-window updates
+    window.dispatchEvent(new CustomEvent('totalWorkTimeUpdate', { 
+      detail: { totalTime: 0 }
+    }));
   };
