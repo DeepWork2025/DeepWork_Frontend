@@ -1,6 +1,6 @@
 import { WorkLogData } from "../types/workLog.type";
 
-const STORAGE_KEYS = {
+export const STORAGE_KEYS = {
     WORK_LOGS: 'workLogs',
     ACTIVE_LOG: 'activeWorkLog',
     CATEGORIES: 'workLogCategories'

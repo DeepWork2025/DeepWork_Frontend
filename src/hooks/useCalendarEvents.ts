@@ -1,121 +1,114 @@
-import { useState, useCallback, useEffect } from 'react';
-import { EventInput, EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
-import * as eventService from '../api/eventService.ts';
-import {Event} from '@fullcalendar/core';
+import { useCallback, useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import { EventData } from '../types/event.types';
+import { RootState, AppDispatch } from '../store';
+import * as actions from '../store/events/actions';
 
 export const useCalendarEvents = () => {
-
-  const [events, setEvents] = useState<EventInput[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+  const dispatch = useDispatch<AppDispatch>();
+  const { events, selectedEvent, loading, error } = useSelector((state: RootState) => state.events);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
-  // load events on mount
   useEffect(() => {
-    const storedEvents = eventService.getEvents();
-    setEvents(storedEvents);
-  }, []);
-
-  // save events whenever there's a change
-  useEffect(() => {
-    eventService.saveEvents(events);
-  }, [events]);
-
-  const handleEventClick = useCallback((clickInfo: EventClickArg) => {
-    const {id, title, start, end, extendedProps, allDay} = clickInfo.event;
-
-    setSelectedEvent({
-      id,
-      title,
-      start: start || new Date(),
-      end: end || new Date(),
-      allDay,
-      description: extendedProps?.description || '',
-      backgroundColor: extendedProps?.backgroundColor || '#3788d8'
-    });
-    setIsFormOpen(true);
-  }, []);
+    dispatch(actions.loadEvents());
+  }, [dispatch]);
 
   const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
-    const startDate = new Date(selectInfo.start);
-    const endDate = new Date(selectInfo.start);
-    endDate.setHours(endDate.getHours() + 1);
+    const startDate = selectInfo.start;
+    const endDate = selectInfo.end || new Date(startDate.getTime() + 60 * 60 * 1000); // Default to 1 hour if no end time
 
-    setSelectedEvent({
-      title: '',
-      start: startDate,
-      end: endDate,
-      allDay: selectInfo.allDay,
+    const eventData: EventData = {
+      id: Date.now(),
+      title: 'New Event',
+      startTime: startDate.toISOString(),
+      endTime: endDate.toISOString(),
+      description: '',
+      label: '',
       backgroundColor: '#3788d8'
-    });
+    };
 
+    dispatch(actions.setSelectedEvent(eventData));
     setIsFormOpen(true);
-    selectInfo.view.calendar.unselect();
-  }, []);
+    selectInfo.view.calendar.unselect(); // Clear the selection after creating the event
+  }, [dispatch]);
 
-  // Save the event and close the form
-  const handleSaveEvent = useCallback((eventData: EventInput) => {
-    const updatedEvents = eventService.addOrUpdateEvent(eventData);
-    setEvents(updatedEvents);  // Update the events state
+  const handleEventClick = useCallback((clickInfo: EventClickArg) => {
+    const eventData: EventData = {
+      id: Number(clickInfo.event.id),
+      title: clickInfo.event.title,
+      startTime: clickInfo.event.start!.toISOString(),
+      endTime: clickInfo.event.end!.toISOString(),
+      description: clickInfo.event.extendedProps.description || '',
+      label: clickInfo.event.extendedProps.label || '',
+      backgroundColor: clickInfo.event.backgroundColor || '#3788d8'
+    };
+    dispatch(actions.setSelectedEvent(eventData));
+    setIsFormOpen(true);
+  }, [dispatch]);
 
-    // Close the form after saving the event
+  const handleEventDrop = useCallback((dropInfo: EventDropArg) => {
+    const eventData: EventData = {
+      id: Number(dropInfo.event.id),
+      title: dropInfo.event.title,
+      startTime: dropInfo.event.start!.toISOString(),
+      endTime: dropInfo.event.end!.toISOString(),
+      description: dropInfo.event.extendedProps.description || '',
+      label: dropInfo.event.extendedProps.label || '',
+      backgroundColor: dropInfo.event.backgroundColor || '#3788d8'
+    };
+    dispatch(actions.saveEvent(eventData));
+  }, [dispatch]);
+
+  const handleEventResize = useCallback((resizeInfo: EventDropArg) => {
+    const eventData: EventData = {
+      id: Number(resizeInfo.event.id),
+      title: resizeInfo.event.title,
+      startTime: resizeInfo.event.start!.toISOString(),
+      endTime: resizeInfo.event.end!.toISOString(),
+      description: resizeInfo.event.extendedProps.description || '',
+      label: resizeInfo.event.extendedProps.label || '',
+      backgroundColor: resizeInfo.event.backgroundColor || '#3788d8'
+    };
+    dispatch(actions.saveEvent(eventData));
+  }, [dispatch]);
+
+  const saveEvent = useCallback((eventData: EventData) => {
+    dispatch(actions.saveEvent(eventData));
     setIsFormOpen(false);
-    setSelectedEvent(null);
-  }, []);
+  }, [dispatch]);
 
-  // Delete an event and close the form
-  const handleDeleteEvent = useCallback((eventId: string) => {
-    const updatedEvents = eventService.deleteEvent(eventId);
-    setEvents(updatedEvents);  // Update the events state
-
-    // Close the form after deleting the event
+  const deleteEvent = useCallback((eventId: number) => {
+    dispatch(actions.deleteEvent(eventId));
     setIsFormOpen(false);
-    setSelectedEvent(null);
-  }, []);
+  }, [dispatch]);
 
-// Handle event drop (dragging an event)
-const handleEventDrop = useCallback((eventDropInfo: EventDropArg) => {
-  const { event } = eventDropInfo;
-  const updatedEvent = {
-    ...event,
-    start: event.start,
-    end: event.end,
-  };
-
-    // Update the events in state
-    const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
-    setEvents(updatedEvents);
-
-  // Optionally, save updated events to the backend
-  eventService.saveEvents(events);  // Save the updated event to the server
-}, [events]);
-
-// Handle event resize (resize an event)
-const handleEventResize = useCallback((info: { event: Event; el: HTMLElement; view: any }) => {
-  const { event } = info;
-  const updatedEvent = {
-    ...event,
-    start: event.start,
-    end: event.end,
-  };
-
-  // Update the events in state
-  const updatedEvents = eventService.addOrUpdateEvent(updatedEvent);
-  setEvents(updatedEvents);
-
-  // Optionally, save updated events to the backend
-  eventService.saveEvents(events);  // Save the updated event to the server
-}, [events]);
+  const transformEventsForFullCalendar = useCallback(() => {
+    return events.map(event => ({
+      id: event.id.toString(),
+      title: event.title,
+      start: new Date(event.startTime),
+      end: new Date(event.endTime),
+      backgroundColor: event.backgroundColor,
+      extendedProps: {
+        description: event.description,
+        label: event.label
+      }
+    }));
+  }, [events]);
 
   return {
-    events,
+    events: transformEventsForFullCalendar(),
     selectedEvent,
+    loading,
+    error,
     isFormOpen,
     setIsFormOpen,
-    handleEventClick,
     handleDateSelect,
-    handleSaveEvent,
-    handleDeleteEvent,
+    handleEventClick,
     handleEventDrop,
-    handleEventResize
+    handleEventResize,
+    saveEvent,
+    deleteEvent
   };
 };
