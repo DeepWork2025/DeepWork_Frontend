@@ -15,7 +15,7 @@ export interface DragItem {
   taskIndex: number;
   subtaskIndex?: number;
   id: string;
-  index?: number; // Added for compatibility with useTaskReorderDragDrop
+  index?: number;
 }
 
 // Hook for making a task draggable and a drop target for subtasks
@@ -44,24 +44,20 @@ export function useTaskDragDrop(
   const [{ isOver }, drop] = useDrop({
     accept: [ItemTypes.SUBTASK, ItemTypes.TASK],
     drop: (item: DragItem, monitor) => {
-      // If the drop was already handled by a child component, don't handle it again
       if (monitor.didDrop()) {
         return;
       }
 
       if (item.type === ItemTypes.SUBTASK && item.subtaskIndex !== undefined) {
-        // A subtask was dropped on this task - move it to become a subtask of this task
         moveSubtaskToTask(item.taskIndex, item.subtaskIndex, taskIndex);
       } else if (
         item.type === ItemTypes.TASK &&
         item.taskIndex !== undefined &&
         item.taskIndex !== taskIndex
       ) {
-        // A task was dropped on this task - move it to become a subtask of this task
         moveTaskToSubtask(item.taskIndex, taskIndex);
       }
     },
-    // Don't allow dropping on itself
     canDrop: (item: DragItem) => {
       return (
         item.type === ItemTypes.SUBTASK ||
@@ -73,7 +69,6 @@ export function useTaskDragDrop(
     }),
   });
 
-  // Apply both drag and drop refs to the element
   drag(drop(ref));
 
   return { ref, isDragging, isOver };
@@ -110,7 +105,7 @@ export function useSubtaskDragDrop(
   return { ref, isDragging };
 }
 
-// Fixed useTaskReorderDragDrop hook
+// Hook for task reordering
 export function useTaskReorderDragDrop(
   taskIndex: number,
   taskId: string,
@@ -123,8 +118,8 @@ export function useTaskReorderDragDrop(
     item: {
       type: ItemTypes.TASK,
       id: taskId,
-      taskIndex, // Use consistent naming
-      index: taskIndex, // Keep index for backward compatibility
+      taskIndex,
+      index: taskIndex,
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
@@ -138,51 +133,35 @@ export function useTaskReorderDragDrop(
         return;
       }
 
-      // Use either taskIndex or index, whichever is available
-      const dragIndex =
-        item.taskIndex !== undefined ? item.taskIndex : item.index;
+      const dragIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
+      if (dragIndex === undefined) {
+        return;
+      }
+
       const hoverIndex = taskIndex;
 
-      // Don't replace items with themselves
       if (dragIndex === hoverIndex) {
         return;
       }
 
-      // Determine rectangle on screen
       const hoverBoundingRect = ref.current.getBoundingClientRect();
-
-      // Get vertical middle
-      const hoverMiddleY =
-        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
-
-      // Determine mouse position
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
+      
       if (!clientOffset) return;
 
-      // Get pixels to the top
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
 
-      // Only perform the move when the mouse has crossed half of the items height
-      // When dragging downwards, only move when the cursor is below 50%
-      // When dragging upwards, only move when the cursor is above 50%
-
-      // Dragging downwards
       if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
         return;
       }
 
-      // Dragging upwards
       if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
         return;
       }
 
-      // Time to actually perform the action
       reorderTask(dragIndex, hoverIndex);
 
-      // Note: we're mutating the monitor item here!
-      // Generally it's better to avoid mutations,
-      // but it's good here for the sake of performance
-      // to avoid expensive index searches.
       item.taskIndex = hoverIndex;
       if (item.index !== undefined) {
         item.index = hoverIndex;
@@ -202,7 +181,7 @@ export function useTaskReorderDragDrop(
   };
 }
 
-// New hook for task-to-subtask conversion only (no reordering)
+// Hook for task-to-subtask conversion
 export function useTaskSubtaskConversion(
   taskIndex: number,
   moveSubtaskToTask: (
@@ -214,41 +193,31 @@ export function useTaskSubtaskConversion(
 ) {
   const ref = useRef<HTMLDivElement>(null);
 
-  // Make task a drop target for subtasks and other tasks
   const [{ isOver }, drop] = useDrop({
     accept: [ItemTypes.SUBTASK, ItemTypes.TASK],
     drop: (item: DragItem, monitor) => {
-      // If the drop was already handled by a child component, don't handle it again
       if (monitor.didDrop()) {
         return;
       }
 
       if (item.type === ItemTypes.SUBTASK && item.subtaskIndex !== undefined) {
-        // A subtask was dropped on this task - move it to become a subtask of this task
         moveSubtaskToTask(item.taskIndex, item.subtaskIndex, taskIndex);
       } else if (item.type === ItemTypes.TASK) {
-        // Get the taskIndex, either from taskIndex or index property
-        const sourceIndex =
-          item.taskIndex !== undefined ? item.taskIndex : item.index;
-
-        // Only proceed if we have a valid source index and it's not the same as target
+        const sourceIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
         if (sourceIndex !== undefined && sourceIndex !== taskIndex) {
-          // A task was dropped on this task - move it to become a subtask of this task
           moveTaskToSubtask(sourceIndex, taskIndex);
         }
       }
     },
-    // Don't allow dropping on itself
     canDrop: (item: DragItem) => {
-      const sourceIndex =
-        item.taskIndex !== undefined ? item.taskIndex : item.index;
+      const sourceIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
       return (
         item.type === ItemTypes.SUBTASK ||
         (item.type === ItemTypes.TASK && sourceIndex !== taskIndex)
       );
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver() && monitor.canDrop(),
+      isOver: monitor.isOver(),
     }),
   });
 

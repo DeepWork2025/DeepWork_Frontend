@@ -12,6 +12,7 @@ import {
 } from "./DragAndDrop";
 import { SubtaskContextMenu } from "./SubtaskContextMenu";
 import { TaskContextMenu } from "./TaskContextMenu";
+import DraggableTask from './DraggableTask';
 
 interface Subtask {
   id: string;
@@ -27,8 +28,49 @@ interface Task {
   isExpanded: boolean;
 }
 
+interface SubtaskItemProps {
+  subtask: Subtask;
+  taskIndex: number;
+  subtaskIndex: number;
+  toggleSubtask: (taskIndex: number, subtaskIndex: number) => void;
+  moveSubtaskToTask: (sourceTaskIndex: number, subtaskIndex: number, targetTaskIndex?: number) => void;
+  convertSubtaskToTask: (taskIndex: number, subtaskIndex: number) => void;
+  deleteSubtask: (taskIndex: number, subtaskIndex: number) => void;
+}
+
+interface TaskItemProps {
+  task: Task;
+  index: number;
+  toggleTask: (index: number) => void;
+  toggleSubtasks: (index: number) => void;
+  toggleSubtask: (taskIndex: number, subtaskIndex: number) => void;
+  handleAddSubtaskClick: (index: number) => void;
+  moveSubtaskToTask: (sourceTaskIndex: number, subtaskIndex: number, targetTaskIndex?: number) => void;
+  moveTaskToSubtask: (sourceTaskIndex: number, targetTaskIndex: number) => void;
+  reorderTask: (sourceIndex: number, targetIndex: number) => void;
+  activeTaskIndex: number | null;
+  newSubtask: string;
+  handleSubtaskInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBlurSubtaskInput: () => void;
+  addSubtask: (taskIndex: number, e: React.FormEvent) => void;
+  convertSubtaskToTask: (taskIndex: number, subtaskIndex: number) => void;
+  deleteTask: (taskIndex: number) => void;
+  deleteSubtask: (taskIndex: number, subtaskIndex: number) => void;
+}
+
+interface AddTaskFormProps {
+  newTask: string;
+  setNewTask: (value: string) => void;
+  addTask: (e: React.FormEvent) => void;
+}
+
+interface RootDropAreaProps {
+  moveSubtaskToTask: (sourceTaskIndex: number, subtaskIndex: number, targetTaskIndex?: number) => void;
+  children: React.ReactNode;
+}
+
 // Separate component for subtasks
-const SubtaskItem = ({
+const SubtaskItem: React.FC<SubtaskItemProps> = ({
   subtask,
   taskIndex,
   subtaskIndex,
@@ -74,7 +116,7 @@ const SubtaskItem = ({
 };
 
 // Separate component for tasks
-const TaskItem = ({
+const TaskItem: React.FC<TaskItemProps> = ({
   task,
   index,
   toggleTask,
@@ -114,80 +156,92 @@ const TaskItem = ({
         isOverForReorder ? "bg-gray-100 rounded" : ""
       }`}
     >
-      <div
-        ref={contentRef}
-        className={`flex items-center gap-3 group relative ${
-          isOverForConversion ? "bg-blue-50 rounded p-1" : ""
-        }`}
+      <DraggableTask 
+        task={task}
       >
-        <button
-          type="button"
-          onClick={() => toggleTask(index)}
-          className="w-5 h-5 border border-gray-400 rounded bg-gray-100 flex items-center justify-center"
+        <div
+          ref={contentRef}
+          className={`flex items-center gap-3 group relative ${
+            isOverForConversion ? "bg-blue-50 rounded p-1" : ""
+          }`}
         >
-          {task.completed && "✓"}
-        </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleTask(index);
+            }}
+            className="w-5 h-5 border border-gray-400 rounded bg-gray-100 flex items-center justify-center"
+          >
+            {task.completed && "✓"}
+          </button>
 
-        <span
-          className={`flex-grow ${
-            task.completed ? "line-through text-gray-500" : ""
-          } cursor-pointer flex items-center`}
-          onClick={() => task.subtasks.length > 0 && toggleSubtasks(index)}
-        >
-          {task.text}
+          <span
+            className={`flex-grow ${
+              task.completed ? "line-through text-gray-500" : ""
+            } cursor-pointer flex items-center`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (task.subtasks.length > 0) {
+                toggleSubtasks(index);
+              }
+            }}
+          >
+            {task.text}
 
-          {/* Subtask indicator icon */}
-          {hasHiddenSubtasks && (
-            <span className="ml-2 text-gray-400 text-sm flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-              <span className="ml-1 text-xs">{task.subtasks.length}</span>
-            </span>
-          )}
+            {/* Subtask indicator icon */}
+            {hasHiddenSubtasks && (
+              <span className="ml-2 text-gray-400 text-sm flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+                <span className="ml-1 text-xs">{task.subtasks.length}</span>
+              </span>
+            )}
 
-          {/* Expanded indicator */}
-          {task.subtasks.length > 0 && task.isExpanded && (
-            <span className="ml-2 text-gray-400 text-sm flex items-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-              <span className="ml-1 text-xs">{task.subtasks.length}</span>
-            </span>
-          )}
-        </span>
+            {/* Expanded indicator */}
+            {task.subtasks.length > 0 && task.isExpanded && (
+              <span className="ml-2 text-gray-400 text-sm flex items-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-4 w-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+                <span className="ml-1 text-xs">{task.subtasks.length}</span>
+              </span>
+            )}
+          </span>
 
-        <TaskContextMenu
-          taskIndex={index}
-          handleAddSubtaskClick={handleAddSubtaskClick}
-          deleteTask={deleteTask}
-          toggleSubtasks={toggleSubtasks}
-          hasSubtasks={task.subtasks.length > 0}
-          isExpanded={task.isExpanded}
-        />
-      </div>
+          <TaskContextMenu
+            taskIndex={index}
+            handleAddSubtaskClick={handleAddSubtaskClick}
+            deleteTask={deleteTask}
+            toggleSubtasks={toggleSubtasks}
+            hasSubtasks={task.subtasks.length > 0}
+            isExpanded={task.isExpanded}
+          />
+        </div>
+      </DraggableTask>
 
       {task.isExpanded && (
         <div className="ml-8 space-y-2">
@@ -228,8 +282,9 @@ const TaskItem = ({
     </li>
   );
 };
+
 // Add Task Form component
-const AddTaskForm = ({ newTask, setNewTask, addTask }) => {
+const AddTaskForm: React.FC<AddTaskFormProps> = ({ newTask, setNewTask, addTask }) => {
   return (
     <li className="space-y-2">
       <form
@@ -252,30 +307,23 @@ const AddTaskForm = ({ newTask, setNewTask, addTask }) => {
 };
 
 // Root drop area component
-const RootDropArea = ({ moveSubtaskToTask, children }) => {
-  const [{ isOver }, drop] = useDrop({
+const RootDropArea: React.FC<RootDropAreaProps> = ({ moveSubtaskToTask, children }) => {
+  const [{ isOver }, drop] = useDrop(() => ({
     accept: ItemTypes.SUBTASK,
-    drop: (item, monitor) => {
-      // Only handle the drop if it wasn't handled by a child component
-      if (monitor.didDrop()) {
-        return;
-      }
-
-      // When a subtask is dropped here, convert it to a main task
-      // by calling moveSubtaskToTask without a targetTaskIndex
+    drop: (item: { taskIndex: number; subtaskIndex: number }) => {
       moveSubtaskToTask(item.taskIndex, item.subtaskIndex);
     },
-    // Only collect isOver if we're not over a child
     collect: (monitor) => ({
-      isOver: monitor.isOver({ shallow: true }),
+      isOver: monitor.isOver(),
     }),
-  });
+  }));
 
   return (
     <div
       ref={drop}
-      className={`w-full h-full ${isOver ? "bg-gray-50" : ""}`}
-      style={{ minHeight: "100px" }}
+      className={`min-h-[100px] ${
+        isOver ? "bg-blue-50 rounded p-4" : ""
+      }`}
     >
       {children}
     </div>
@@ -574,7 +622,7 @@ export default function TaskList() {
         <h2 className="text-xl font-bold mb-4">Tasks</h2>
 
         <RootDropArea moveSubtaskToTask={moveSubtaskToTask}>
-          <ul className="space-y-3 mb-4">
+          <ul className="space-y-3 mb-4 task-list">
             {tasks.map((task, index) => (
               <TaskItem
                 key={task.id}
