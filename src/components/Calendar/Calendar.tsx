@@ -37,10 +37,10 @@ const Calendar: React.FC = () => {
       days.push(
         <div
           key={i}
-          className={`w-10 h-10 flex items-center justify-center text-sm font-medium cursor-pointer transition ${
+          className={`w-10 h-10 flex items-center justify-center text-xs font-medium cursor-pointer rounded-md transition ${
             isToday(i)
-              ? "bg-blue-500 text-white rounded-full font-bold"
-              : "hover:bg-gray-200"
+              ? "bg-blue-500 text-white font-bold shadow-md"
+              : "hover:bg-gray-200 text-gray-700"
           }`}
         >
           {i}
@@ -52,40 +52,54 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="max-w-sm h-[350px] flex flex-col border rounded-lg shadow-md bg-white overflow-hidden">
-      {/* header */}
+    <div className="max-w-xs mx-auto h-[360px] flex flex-col border rounded-lg shadow-md bg-white overflow-hidden">
+      {/* Header */}
       <div className="flex justify-between items-center bg-gray-100 px-4 py-2">
         <button
-          className="text-xl font-bold hover:text-gray-600"
+          className="text-base font-bold hover:text-gray-600 transition"
           onClick={prevMonth}
         >
           &lt;
         </button>
-        <h2 className="text-lg font-semibold">
+        <h2 className="text-sm font-semibold tracking-wide">
           {currentDate.toLocaleString("default", {
             month: "long",
             year: "numeric",
           })}
         </h2>
         <button
-          className="text-xl font-bold hover:text-gray-600"
+          className="text-base font-bold hover:text-gray-600 transition"
           onClick={nextMonth}
         >
           &gt;
         </button>
       </div>
 
-      {/* week */}
-      <div className="grid grid-cols-7 text-center font-bold bg-gray-50 py-2 text-gray-700">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-          <div key={day} className="text-sm">
+      {/* Weekdays */}
+      <div className="grid grid-cols-7 text-center font-medium bg-gray-50 py-1 text-gray-700 border-b">
+        {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+          <div
+            key={day}
+            className="text-xs h-10 flex items-center justify-center"
+            style={{ lineHeight: "1" }}
+          >
             {day}
           </div>
         ))}
       </div>
 
-      {/* date */}
-      <div className="grid grid-cols-7 gap-1 p-2">{renderDays()}</div>
+      {/* Dates */}
+      <div className="grid grid-cols-7 gap-0.5 p-2">
+        {renderDays().map((day, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-center text-xs font-medium cursor-pointer rounded-md transition"
+            style={{ lineHeight: "1" }}
+          >
+            {day}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
