@@ -16,13 +16,14 @@ const Home: React.FC = () => {
       {/* 主体布局区域 */}
       <div className="flex flex-1 overflow-hidden">
         {/* 左侧边栏 */}
-          <LeftSideBar />
 
-          {/* Calendar */}
-          <CalendarContainer />
+        <LeftSideBar />
+
+        {/* Calendar */}
+        <CalendarContainer />
 
         {/* 右侧边栏 */}
-        <div className="w-[400px] bg-gray-200 overflow-y-auto">
+        <div className="w-[400px] bg-gray-200 ">
           <RightSideBar />
         </div>
       </div>

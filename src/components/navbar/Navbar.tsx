@@ -15,15 +15,39 @@ const Navbar: React.FC = () => {
       <Link to="/home" className="text-xl font-bold">
         Deep Work
       </Link>
-      {user ? (
-        <button onClick={handleLogout} className="text-red-500">
-          Logout
-        </button>
-      ) : (
-        <Link to="/login" className="text-blue-500">
-          Login
-        </Link>
-      )}
+
+      <div className="dropdown dropdown-end">
+        <div
+          tabIndex={0}
+          role="button"
+          className="btn btn-ghost btn-circle avatar"
+        >
+          <div className="w-10 rounded-full">
+            <img
+              alt="Tailwind CSS Navbar component"
+              src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+            />
+          </div>
+        </div>
+        <ul
+          tabIndex={0}
+          className="menu menu-sm dropdown-content absolute bg-base-100 rounded-box z-50 mt-3 w-52 p-2 shadow"
+        >
+          <li>
+            <Link to="/profile" className="justify-between">
+              Profile
+              <span className="badge">New</span>
+            </Link>
+          </li>
+
+          <li>
+            <a>Settings</a>
+          </li>
+          <li>
+            <button onClick={handleLogout}>Logout</button>
+          </li>
+        </ul>
+      </div>
     </nav>
   );
 };
