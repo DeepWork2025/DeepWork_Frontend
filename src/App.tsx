@@ -7,6 +7,8 @@ import Banner from "./pages/Banner";
 import ProfilePage from "./pages/Profile";
 import { AvatarProvider } from "./context/AvatarContext";
 import { AuthProvider } from "./context/AuthContext";
+import { Provider } from 'react-redux';
+import { store } from './store';
 // import PrivateRoute from "./auth/PrivateRoute";
 
 const App: React.FC = () => {
@@ -38,24 +40,26 @@ const App: React.FC = () => {
   };
 
   return (
-    <AuthProvider>
-      <AvatarProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Banner />} />
-            <Route
-              path="/register"
-              element={<Register onRegister={handleRegister} />}
-            />
-            <Route path="/login" element={<Login onLogin={handleLogin} />} />
-            {/* <Route element={<PrivateRoute />}> */}
-            <Route path="/home" element={<Home />} />
-            {/* </Route> */}
-            <Route path="/profile" element={<ProfilePage />} />
-          </Routes>
-        </Router>
-      </AvatarProvider>
-    </AuthProvider>
+    <Provider store={store}>
+      <AuthProvider>
+        <AvatarProvider>
+          <Router>
+            <Routes>
+              <Route path="/" element={<Banner />} />
+              <Route
+                path="/register"
+                element={<Register onRegister={handleRegister} />}
+              />
+              <Route path="/login" element={<Login onLogin={handleLogin} />} />
+              {/* <Route element={<PrivateRoute />}> */}
+              <Route path="/home" element={<Home />} />
+              {/* </Route> */}
+              <Route path="/profile" element={<ProfilePage />} />
+            </Routes>
+          </Router>
+        </AvatarProvider>
+      </AuthProvider>
+    </Provider>
   );
 };
 

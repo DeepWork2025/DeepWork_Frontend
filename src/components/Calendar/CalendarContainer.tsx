@@ -4,7 +4,8 @@ import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import FullCalendarWrapper from "./FullCalendarWrapper";
 
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
-import ToolBar from "./ToolBar";
+
+console.log('TESTING CONSOLE LOG');
 
 const CalendarContainer = () => {
   const {
@@ -12,9 +13,10 @@ const CalendarContainer = () => {
     selectedEvent,
     isFormOpen,
     setIsFormOpen,
-    handleSaveEvent,
-    handleDeleteEvent,
-    handleEventClick
+    saveEvent,
+    deleteEvent,
+    handleEventClick,
+    isLoading
   } = useCalendarEvents();
 
   // Function to open the form for a new event
@@ -42,12 +44,35 @@ const CalendarContainer = () => {
     return () => window.removeEventListener("resize", syncHeight);
   }, []);
 
+    // Synchronize scrolling between the left and right calendars
+    const handleScroll = (e: Event) => {
+      if (rightCalendarRef.current && leftCalendarRef.current) {
+       if(e.target === leftCalendarRef.current){
+        rightCalendarRef.current.scrollTop = leftCalendarRef.current.scrollTop;
+       } else if (e.target === rightCalendarRef.current){
+        leftCalendarRef.current.scrollTop = rightCalendarRef.current.scrollTop;
+       }
+      }
+    };
+
+
+  // Format today's date for display
+  const formatTodayDate = () => {
+    const today = new Date();
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'short',
+      weekday: 'long'
+    };
+    return today.toLocaleDateString('en-US', options);
+  };
+
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full h-screen overflow-hidden">
       <div className="flex justify-between items-center  bg-white shadow w-full">
         {/* Header section with full row.*/}
         <header className="p-4 bg-white">
-          <h1 className="text-2xl"><b>Today</b><span> 11 Mar, Tuesday</span></h1>
+          <h1 className="text-2xl"><b>Today</b><span> {formatTodayDate()}</span></h1>
         </header>
         <button
           onClick={handleAddEvent}
@@ -58,20 +83,22 @@ const CalendarContainer = () => {
       </div>
 
       {/* Tool Bar */}
-      <ToolBar />
+      {/* <ToolBar /> */}
 
     {/* Calendars Section */}
-    <div className="flex w-full">
+    <div className="flex w-full flex-1 overflow-hidden">
         {/* Left: Day Calendar */}
-        <div ref={leftCalendarRef} className="w-1/2 bg-gray-100">
-          <FullCalendarWrapper
-            events={events}
-            onEventClick={handleEventClick}
-          />
+        <div ref={leftCalendarRef}
+        className="w-1/2 bg-gray-100 overflow-auto"
+        onScroll={handleScroll}
+        >
+          <FullCalendarWrapper />
         </div>
 
         {/* Right: WorkLog Calendar */}
-        <div ref={rightCalendarRef} className="w-1/2 bg-gray-100">
+        <div ref={rightCalendarRef}
+        className="w-1/2 bg-gray-100 overflow-auto"
+        onScroll={handleScroll}>
           <WorkLogCalendar />
         </div>
       </div>
@@ -81,8 +108,8 @@ const CalendarContainer = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <EventForm
             event={selectedEvent || {}}
-            onSave={handleSaveEvent}
-            onDelete={handleDeleteEvent}
+            onSave={saveEvent}
+            onDelete={deleteEvent}
             onClose={()=>setIsFormOpen(false)} // Close the form modal
           />
         </div>

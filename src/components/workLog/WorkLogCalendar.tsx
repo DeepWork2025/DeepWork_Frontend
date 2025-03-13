@@ -120,10 +120,14 @@ const WorkLogCalendar: React.FC = () => {
             dayMaxEvents={true}
             initialDate={date}
             events={calendarEvents}
+            slotMinTime="00:00:00"
+            slotMaxTime="24:00:00"
+            ScrollTop="08:00:00"
+            height="auto"
+            contentHeight="auto"
             eventClick={handleEventClick}
             dateClick={handleDateClick}
             select={handleSelectTimeSlot}
-            height="auto"
             expandRows={true}
             allDaySlot={false}
             nowIndicator={true}
@@ -134,7 +138,7 @@ const WorkLogCalendar: React.FC = () => {
         </div>
       </div>
 
-      {/* You would need to implement a modal component for log details */}
+      {/* a modal component for log details */}
       {isDetailModalOpen && selectedLog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-lg w-full">
