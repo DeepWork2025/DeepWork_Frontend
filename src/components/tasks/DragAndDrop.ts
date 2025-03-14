@@ -25,7 +25,7 @@ export function useTaskDragDrop(
   moveSubtaskToTask: (
     sourceTaskIndex: number,
     subtaskIndex: number,
-    targetTaskIndex: number
+    targetTaskIndex?: number
   ) => void,
   moveTaskToSubtask: (sourceTaskIndex: number, targetTaskIndex: number) => void
 ) {
@@ -182,7 +182,7 @@ export function useTaskSubtaskConversion(
   moveSubtaskToTask: (
     sourceTaskIndex: number,
     subtaskIndex: number,
-    targetTaskIndex: number
+    targetTaskIndex?: number
   ) => void,
   moveTaskToSubtask: (sourceTaskIndex: number, targetTaskIndex: number) => void
 ) {

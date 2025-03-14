@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Dispatch, SetStateAction } from "react";
 import FullCalendarWrapper from "../calendar/FullCalendarWrapper";
 import TaskList from "./TaskList";
 import {
@@ -6,6 +6,7 @@ import {
   updateTaskFromCalendarEvent,
   toggleTaskCompletionFromEvent,
 } from "./ConvertTaskToCalendaeEvents";
+import { EventDropArg, EventClickArg } from "@fullcalendar/core";
 
 // Define task-related interfaces if not imported
 interface Subtask {
@@ -23,33 +24,36 @@ interface Task {
   dueDate?: string;
 }
 
+export interface TaskListProps {
+  tasks: Task[];
+  setTasks: Dispatch<SetStateAction<Task[]>>;
+}
+
 const TaskCalendarIntegration: React.FC = () => {
   const [view, setView] = useState<"tasks" | "calendar">("tasks");
   const [tasks, setTasks] = useState<Task[]>([]);
 
   // Custom event handlers for calendar integration
-  const handleEventDrop = (info: any) => {
+  const handleEventDrop = (info: EventDropArg) => {
     const eventId = info.event.id;
-    const newStartTime = info.event.start.toISOString();
-    const newEndTime = info.event.end.toISOString();
+    const newStartTime = info.event.start!.toISOString();
 
     // Update tasks based on the calendar event change
     setTasks((prevTasks) =>
       updateTaskFromCalendarEvent(
         prevTasks,
-        Number(eventId),
-        newStartTime,
-        newEndTime
+        eventId,
+        newStartTime
       )
     );
   };
 
-  const handleEventClick = (info: any) => {
+  const handleEventClick = (info: EventClickArg) => {
     const eventId = info.event.id;
 
     // Toggle task completion when clicked
     setTasks((prevTasks) =>
-      toggleTaskCompletionFromEvent(prevTasks, Number(eventId))
+      toggleTaskCompletionFromEvent(prevTasks, eventId)
     );
   };
 

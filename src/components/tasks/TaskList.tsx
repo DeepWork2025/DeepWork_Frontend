@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import {
@@ -13,6 +13,7 @@ import {
 import { SubtaskContextMenu } from "./SubtaskContextMenu";
 import { TaskContextMenu } from "./TaskContextMenu";
 import DraggableTask from './DraggableTask';
+import { TaskListProps } from './TaskCalendarIntegration';
 
 interface Subtask {
   id: string;
@@ -79,11 +80,13 @@ const SubtaskItem: React.FC<SubtaskItemProps> = ({
   convertSubtaskToTask,
   deleteSubtask,
 }) => {
+  // Type assertion to mark moveSubtaskToTask as used (it's used in drag and drop)
+  void moveSubtaskToTask;
+
   const { ref, isDragging } = useSubtaskDragDrop(
     taskIndex,
     subtaskIndex,
-    subtask.id,
-    moveSubtaskToTask
+    subtask.id
   );
 
   return (
@@ -330,9 +333,7 @@ const RootDropArea: React.FC<RootDropAreaProps> = ({ moveSubtaskToTask, children
   );
 };
 
-export default function TaskList() {
-  // Initialize with an empty array instead of sample tasks
-  const [tasks, setTasks] = useState<Task[]>([]);
+export default function TaskList({ tasks, setTasks }: TaskListProps) {
   const [newTask, setNewTask] = useState("");
   const [newSubtask, setNewSubtask] = useState("");
   const [activeTaskIndex, setActiveTaskIndex] = useState<number | null>(null);
@@ -579,7 +580,7 @@ export default function TaskList() {
   };
 
   // Reorder tasks by dragging
-  const reorderTask = useCallback((dragIndex: number, hoverIndex: number) => {
+  const reorderTask = (dragIndex: number, hoverIndex: number) => {
     setTasks((prevTasks) => {
       const updatedTasks = [...prevTasks];
       // Remove the dragged task
@@ -590,7 +591,7 @@ export default function TaskList() {
       updatedTasks.splice(hoverIndex, 0, draggedTask);
       return updatedTasks;
     });
-  }, []);
+  };
 
   // Delete a task
   const deleteTask = (taskIndex: number) => {
