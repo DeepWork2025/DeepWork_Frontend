@@ -1,4 +1,4 @@
-import { EventData } from "../../types/event.types";
+import { EventInput } from '@fullcalendar/core';
 
 // Interfaces for task and subtask types
 interface Subtask {
@@ -34,7 +34,7 @@ export const convertTasksToCalendarEvents = (
     completedSubtaskColor?: string;
     includeSubtasks?: boolean;
   } = {}
-): EventData[] => {
+): EventInput[] => {
   // Set default options
   const {
     defaultDuration = 60, // Default 1 hour duration
@@ -45,7 +45,7 @@ export const convertTasksToCalendarEvents = (
     includeSubtasks = true,
   } = options;
 
-  const events: EventData[] = [];
+  const events: EventInput[] = [];
   const currentDate = new Date();
 
   // Function to generate a time that's during working hours (9am-5pm)
@@ -72,19 +72,11 @@ export const convertTasksToCalendarEvents = (
     endTime.setMinutes(endTime.getMinutes() + defaultDuration);
 
     // Create event for the task
-    const taskEvent: EventData = {
-      id: Number(task.id.replace(/\D/g, "")) || taskIndex + 1, // Convert string id to number or use index+1
+    const taskEvent: EventInput = {
+      id: String(Number(task.id.replace(/\D/g, "")) || taskIndex + 1), // Convert string id to number or use index+1
       title: task.text,
-      startTime: startTime.toISOString(),
-      endTime: endTime.toISOString(),
-      label: "Task", // You can customize this
-      description: `Task${
-        task.subtasks.length > 0
-          ? ` with ${task.subtasks.length} subtask${
-              task.subtasks.length > 1 ? "s" : ""
-            }`
-          : ""
-      }`,
+      start: startTime.toISOString(),
+      end: endTime.toISOString(),
       color: task.completed ? completedTaskColor : taskColor,
       extendedProps: {
         type: "task",
@@ -109,13 +101,11 @@ export const convertTasksToCalendarEvents = (
           subtaskEndTime.getMinutes() + defaultDuration / 2
         ); // Half the duration for subtasks
 
-        const subtaskEvent: EventData = {
-          id: Number(`${taskIndex + 1}${subtaskIndex + 1}`) + 1000, // Create a unique ID
+        const subtaskEvent: EventInput = {
+          id: String(Number(`${taskIndex + 1}${subtaskIndex + 1}`) + 1000), // Create a unique ID
           title: `${task.text}: ${subtask.text}`,
-          startTime: subtaskStartTime.toISOString(),
-          endTime: subtaskEndTime.toISOString(),
-          label: "Subtask",
-          description: `Subtask of "${task.text}"`,
+          start: subtaskStartTime.toISOString(),
+          end: subtaskEndTime.toISOString(),
           color: subtask.completed ? completedSubtaskColor : subtaskColor,
           extendedProps: {
             type: "subtask",
@@ -143,7 +133,7 @@ export const convertTasksToCalendarEvents = (
  */
 export const updateTaskFromCalendarEvent = (
   tasks: Task[],
-  eventId: number,
+  eventId: string,
   newStartTime: string
 ): Task[] => {
   // Create a copy of the tasks array to avoid mutating the original
@@ -207,7 +197,7 @@ export const updateTaskFromCalendarEvent = (
  */
 export const toggleTaskCompletionFromEvent = (
   tasks: Task[],
-  eventId: number
+  eventId: string
 ): Task[] => {
   // Create a copy of the tasks array
   const updatedTasks = [...tasks];
