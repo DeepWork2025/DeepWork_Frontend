@@ -118,11 +118,11 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
     >
       <div className="flex justify-between items-start p-2 flex-1">
         <div className="flex-1">
-          <div className="text-sm font-medium">{timeText}</div>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-medium text-white">{timeText}</div>
+          <div className="text-sm font-semibold text-white">
             {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
           </div>
-          <div className="text-xs text-white">
+          <div className="text-xs text-white/80">
             {isActive ? (
               `Duration: ${formatElapsedTime(elapsed)}`
             ) : (

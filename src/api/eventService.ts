@@ -95,26 +95,44 @@ export const deleteEvent = (eventId: number) => {
 };
 
 export const addOrUpdateEvent = (eventData: EventDataWithStartEnd) => {
+  console.log('Adding/updating event:', eventData);
   const events = getEvents();
+  console.log('Current events:', events);
   
   // Process dates in the new/updated event
   const processedEventData = processDates(eventData);
+  console.log('Processed event data:', processedEventData);
 
   // Create new array to avoid mutation
   let updatedEvents: EventData[];
 
   if (processedEventData.id) {
     // Update existing event
-    updatedEvents = events.map(event => 
-      event.id === processedEventData.id ? {
-        ...event,
+    const existingEventIndex = events.findIndex(event => event.id === processedEventData.id);
+    if (existingEventIndex !== -1) {
+      // Update the existing event
+      updatedEvents = [...events];
+      updatedEvents[existingEventIndex] = {
+        ...events[existingEventIndex],
         ...processedEventData,
-        title: processedEventData.title || '',
+        title: processedEventData.title || events[existingEventIndex].title,
+        description: processedEventData.description || events[existingEventIndex].description,
+        label: processedEventData.label || events[existingEventIndex].label,
+        backgroundColor: processedEventData.backgroundColor || events[existingEventIndex].backgroundColor
+      };
+    } else {
+      // If event not found, treat as new event
+      const newEvent: EventData = {
+        id: processedEventData.id,
+        title: processedEventData.title || 'New Event',
+        startTime: processedEventData.startTime || new Date().toISOString(),
+        endTime: processedEventData.endTime || new Date(Date.now() + 3600000).toISOString(),
         description: processedEventData.description || '',
         label: processedEventData.label || 'default',
         backgroundColor: processedEventData.backgroundColor || '#3788d8'
-      } : { ...event }
-    );
+      };
+      updatedEvents = [...events, newEvent];
+    }
   } else {
     // Create new event with unique ID
     const newEvent: EventData = {
@@ -126,10 +144,10 @@ export const addOrUpdateEvent = (eventData: EventDataWithStartEnd) => {
       label: processedEventData.label || 'default',
       backgroundColor: processedEventData.backgroundColor || '#3788d8'
     };
-    // Create new array with spread operator
     updatedEvents = [...events, newEvent];
   }
 
+  console.log('Updated events:', updatedEvents);
   saveEvents(updatedEvents);
   return updatedEvents;
 };

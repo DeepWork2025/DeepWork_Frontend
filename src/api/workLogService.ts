@@ -15,7 +15,7 @@ export const STORAGE_KEYS = {
         const foundLog = allLogs.find(log => log.id === id);
         return foundLog || null;
     }
-
+    return null;
   }
 
   // Get all work logs

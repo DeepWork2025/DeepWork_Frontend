@@ -15,8 +15,6 @@ const CalendarContainer = () => {
     setIsFormOpen,
     saveEvent,
     deleteEvent,
-    handleEventClick,
-    isLoading
   } = useCalendarEvents();
 
   // Function to open the form for a new event
@@ -39,13 +37,24 @@ const CalendarContainer = () => {
       }
     }
 
+    // Set initial scroll position to 6:00 AM
+    const setInitialScroll = () => {
+      if (leftCalendarRef.current && rightCalendarRef.current) {
+        // Each hour is 100px in height, so 6 hours = 600px
+        const scrollTo6AM = 600;
+        leftCalendarRef.current.scrollTop = scrollTo6AM;
+        rightCalendarRef.current.scrollTop = scrollTo6AM;
+      }
+    };
+
     syncHeight();
+    setInitialScroll();
     window.addEventListener("resize", syncHeight);
     return () => window.removeEventListener("resize", syncHeight);
   }, []);
 
     // Synchronize scrolling between the left and right calendars
-    const handleScroll = (e: Event) => {
+    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
       if (rightCalendarRef.current && leftCalendarRef.current) {
        if(e.target === leftCalendarRef.current){
         rightCalendarRef.current.scrollTop = leftCalendarRef.current.scrollTop;

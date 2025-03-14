@@ -1,13 +1,19 @@
-import {useState, useRef} from 'react';
+import { useState } from 'react';
+import { Calendar } from '@fullcalendar/core';
 
-const ToolBar = ({leftCalendarRef, rightCalendarRef}) => {
+interface ToolBarProps {
+  leftCalendarRef: React.RefObject<Calendar>;
+  rightCalendarRef: React.RefObject<Calendar>;
+}
+
+const ToolBar = ({ leftCalendarRef, rightCalendarRef }: ToolBarProps) => {
   const [currentView, setCurrentView] = useState("timeGridDay");
 
   // functions to control navigation: prev, today, next
   const handleNav = (action: "prev" | "next" | "today") => {
     if (leftCalendarRef.current && rightCalendarRef.current){
-      leftCalendarRef.current.getAPI()[action]();
-      rightCalendarRef.current.getAPI()[action]();
+      leftCalendarRef.current[action]();
+      rightCalendarRef.current[action]();
     }
   }
   
@@ -15,8 +21,8 @@ const ToolBar = ({leftCalendarRef, rightCalendarRef}) => {
   const handleChangeView = (view: string) => {
     setCurrentView(view);
     if (leftCalendarRef.current && rightCalendarRef.current) {
-      leftCalendarRef.current.getAPI().changeView(view);
-      rightCalendarRef.current.getAPI().changeView(view);
+      leftCalendarRef.current.changeView(view);
+      rightCalendarRef.current.changeView(view);
     }
   }
 

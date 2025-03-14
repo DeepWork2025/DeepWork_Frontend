@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { EventClickArg, DateSelectArg, EventDropArg, EventResizeDoneArg } from '@fullcalendar/core';
+import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import { EventData } from '../types/event.types';
 import { RootState, AppDispatch } from '../store';
 import * as actions from '../store/events/actions';
@@ -59,20 +59,21 @@ export const useCalendarEvents = () => {
     dispatch(actions.saveEvent(eventData));
   }, [dispatch]);
 
-  const handleEventResize = useCallback((resizeInfo: EventResizeDoneArg) => {
+  const handleEventResize = useCallback((dropInfo: EventDropArg) => {
     const eventData: EventData = {
-      id: Number(resizeInfo.event.id),
-      title: resizeInfo.event.title,
-      startTime: resizeInfo.event.start!.toISOString(),
-      endTime: resizeInfo.event.end!.toISOString(),
-      description: resizeInfo.event.extendedProps.description || '',
-      label: resizeInfo.event.extendedProps.label || '',
-      backgroundColor: resizeInfo.event.backgroundColor || '#3788d8'
+      id: Number(dropInfo.event.id),
+      title: dropInfo.event.title,
+      startTime: dropInfo.event.start!.toISOString(),
+      endTime: dropInfo.event.end!.toISOString(),
+      description: dropInfo.event.extendedProps.description || '',
+      label: dropInfo.event.extendedProps.label || '',
+      backgroundColor: dropInfo.event.backgroundColor || '#3788d8'
     };
     dispatch(actions.saveEvent(eventData));
   }, [dispatch]);
 
   const saveEvent = useCallback((eventData: EventData) => {
+    console.log('Saving event:', eventData);
     dispatch(actions.saveEvent(eventData));
     setIsFormOpen(false);
   }, [dispatch]);
@@ -83,17 +84,26 @@ export const useCalendarEvents = () => {
   }, [dispatch]);
 
   const transformEventsForFullCalendar = useCallback(() => {
-    return events.map(event => ({
+    console.log('Raw events before transformation:', events);
+    const transformedEvents = events.map(event => ({
       id: event.id.toString(),
-      title: event.title,
+      title: event.title || 'Untitled Event',
       start: new Date(event.startTime),
       end: new Date(event.endTime),
-      backgroundColor: event.backgroundColor,
+      backgroundColor: event.backgroundColor || '#3788d8',
+      borderColor: event.backgroundColor || '#3788d8',
+      textColor: '#ffffff',
       extendedProps: {
-        description: event.description,
-        label: event.label
+        description: event.description || '',
+        label: event.label || 'default',
+        type: event.label || 'default',
+        category: event.label || 'default',
+        duration: '1:30 h',
+        isStopped: false
       }
     }));
+    console.log('Transformed events:', transformedEvents);
+    return transformedEvents;
   }, [events]);
 
   return {

@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin, { Draggable } from "@fullcalendar/interaction";
+import interactionPlugin, { Draggable, DropArg } from "@fullcalendar/interaction";
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import EventDetailModal from '../event/EventDetailModal';
 import { CustomEventBlock } from '../event/CustomEventBlock';
@@ -38,7 +38,7 @@ const FullCalendarWrapper = () => {
 
   useEffect(() => {
     // Initialize Draggable for all task elements
-    const taskContainer = document.querySelector('.task-list');
+    const taskContainer = document.querySelector('.task-list') as HTMLElement;
     if (taskContainer) {
       new Draggable(taskContainer, {
         itemSelector: '[data-event]',
@@ -48,30 +48,43 @@ const FullCalendarWrapper = () => {
         }
       });
     }
-
-    // Cleanup function
-    return () => {
-      // The Draggable instance will be automatically destroyed when the component unmounts
-    };
   }, []);
 
-  const handleDrop = (info: any) => {
+  const handleDrop = (info: DropArg) => {
     console.log('Drop event received:', info);
-    console.log('Event data:', info.event);
     
     try {
-      if (!info.event) {
-        console.error('No event data found');
-        return;
-      }
-
-      const eventData = info.event;
+      // Create a new event from the drop data
+      const eventData = {
+        id: Date.now(),
+        title: info.draggedEl.getAttribute('data-event-title') || 'New Event',
+        startTime: info.date.toISOString(),
+        endTime: new Date(info.date.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
+        description: '',
+        label: 'default',
+        backgroundColor: '#3788d8'
+      };
+      
       console.log('Creating new event:', eventData);
       saveEvent(eventData);
     } catch (error) {
       console.error('Error handling drop:', error);
     }
   };
+
+  useEffect(() => {
+    console.log('Current events in FullCalendar:', events);
+    events.forEach(event => {
+      console.log('Event details:', {
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        backgroundColor: event.backgroundColor,
+        extendedProps: event.extendedProps
+      });
+    });
+  }, [events]);
 
   return (
     <div className="h-full min-h-[600px]">
@@ -100,6 +113,7 @@ const FullCalendarWrapper = () => {
             drop={handleDrop}
             select={handleDateSelect}
             eventClick={(e) => {
+              console.log('Event clicked:', e.event);
               handleEventClick(e);
               setIsDetailModalOpen(true);
             }}
@@ -108,7 +122,10 @@ const FullCalendarWrapper = () => {
             expandRows={true}
             nowIndicator={true}
             allDaySlot={false}
-            eventContent={(arg) => <CustomEventBlock event={arg.event} timeText={arg.timeText} />}
+            eventContent={(arg) => {
+              console.log('Rendering event:', arg.event);
+              return <CustomEventBlock event={arg.event} timeText={arg.timeText} />;
+            }}
             viewDidMount={(view) => {
               // Ensure the time grid has a minimum height
               const timeGrid = view.el.querySelector('.fc-timegrid-body') as HTMLElement;

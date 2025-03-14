@@ -77,9 +77,9 @@ const Calendar: React.FC = () => {
 
       {/* Weekdays */}
       <div className="grid grid-cols-7 text-center font-medium bg-gray-50 py-1 text-gray-700 border-b">
-        {["S", "M", "T", "W", "T", "F", "S"].map((day) => (
+        {["S", "M", "T", "W", "T", "F", "S"].map((day, index) => (
           <div
-            key={day}
+            key={`weekday-${index}`}
             className="text-xs h-10 flex items-center justify-center"
             style={{ lineHeight: "1" }}
           >
@@ -92,7 +92,7 @@ const Calendar: React.FC = () => {
       <div className="grid grid-cols-7 gap-0.5 p-2">
         {renderDays().map((day, index) => (
           <div
-            key={index}
+            key={`calendar-day-${index}`}
             className="flex items-center justify-center text-xs font-medium cursor-pointer rounded-md transition"
             style={{ lineHeight: "1" }}
           >

@@ -1,3 +1,9 @@
+export interface Task {
+    id: number;
+    title: string;
+    completed: boolean;
+}
+
 export interface EventData {
     id: number;            // Unique identifier
     title: string;          // Event title
@@ -7,4 +13,5 @@ export interface EventData {
     label?: string;         // Category/type of event
     backgroundColor?: string;
     allDay?: boolean;
+    tasks?: Task[];         // Optional array of tasks
 }

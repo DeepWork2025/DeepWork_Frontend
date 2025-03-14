@@ -6,7 +6,7 @@ interface LoginFormProps {
 }
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
-  const [username, setusername] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({
     username: "",
@@ -36,6 +36,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         general: err instanceof Error ? err.message : "Login failed",
       }));
     }
+  };
+
+  const handleInputChange = (setter: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setter(e.target.value);
   };
 
   return (
@@ -101,7 +105,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               id="username"
               placeholder="abc@gmail.com"
               value={username}
-              onChange={handleInputChange(setusername, "username")}
+              onChange={handleInputChange(setUsername)}
               className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
             {errors.username && (
@@ -123,7 +127,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               id="password"
               placeholder="Password"
               value={password}
-              onChange={handleInputChange(setPassword, "password")}
+              onChange={handleInputChange(setPassword)}
               className="w-full px-4 py-2 border rounded-md focus:ring-blue-500 focus:border-blue-500"
             />
             {errors.password && (
