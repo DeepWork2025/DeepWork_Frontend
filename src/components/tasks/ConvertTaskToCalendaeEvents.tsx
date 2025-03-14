@@ -5,6 +5,7 @@ interface Subtask {
   id: string;
   text: string;
   completed: boolean;
+  dueDate?: string;  // Optional due date for subtasks
 }
 
 interface Task {
@@ -138,14 +139,12 @@ export const convertTasksToCalendarEvents = (
  * @param tasks Current tasks array
  * @param eventId ID of the event that changed
  * @param newStartTime New start time from the calendar event
- * @param newEndTime New end time from the calendar event
  * @returns Updated tasks array
  */
 export const updateTaskFromCalendarEvent = (
   tasks: Task[],
   eventId: number,
-  newStartTime: string,
-  newEndTime: string
+  newStartTime: string
 ): Task[] => {
   // Create a copy of the tasks array to avoid mutating the original
   const updatedTasks = [...tasks];

@@ -3,31 +3,28 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin, { Draggable, DropArg } from "@fullcalendar/interaction";
+import { EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import EventDetailModal from '../event/EventDetailModal';
 import { CustomEventBlock } from '../event/CustomEventBlock';
 
-interface Subtask {
-  id: string;
-  text: string;
-  completed: boolean;
+interface FullCalendarWrapperProps {
+  customEvents?: EventInput[];
+  onEventDrop?: (info: EventDropArg) => void;
+  onEventClick?: (info: EventClickArg) => void;
 }
 
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  subtasks: Subtask[];
-  isExpanded: boolean;
-}
-
-const FullCalendarWrapper = () => {
+const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
+  customEvents,
+  onEventDrop,
+  onEventClick
+}) => {
   const {
-    events,
-    handleEventClick,
+    events: defaultEvents,
+    handleEventClick: defaultHandleEventClick,
     handleDateSelect,
     deleteEvent,
-    handleEventDrop,
+    handleEventDrop: defaultHandleEventDrop,
     handleEventResize,
     selectedEvent,
     loading,
@@ -35,6 +32,11 @@ const FullCalendarWrapper = () => {
   } = useCalendarEvents();
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
+  // Use custom events if provided, otherwise use default events
+  const events = customEvents || defaultEvents;
+  const handleEventDrop = onEventDrop || defaultHandleEventDrop;
+  const handleEventClick = onEventClick || defaultHandleEventClick;
 
   useEffect(() => {
     // Initialize Draggable for all task elements

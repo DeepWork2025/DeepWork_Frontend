@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Calendar from "../Calendar/Calendar";
+import MonthCalendar from "../calendar/MonthCalendar";
 import WorkLogTimer from "./WorkLogTimer";
 
 const LeftSideBar: React.FC = () => {
@@ -19,7 +19,7 @@ const LeftSideBar: React.FC = () => {
       </button>
       {isSidebarExpanded && (
         <div className="p-4">
-          <Calendar />
+          <MonthCalendar />
           <WorkLogTimer />
         </div>
       )}

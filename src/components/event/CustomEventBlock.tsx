@@ -10,7 +10,7 @@ interface CustomEventBlockProps {
 }
 
 export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeText }) => {
-  const { activeLog, elapsed, startTimer, stopTimer, isRunning } = useTimer();
+  const { activeLog, elapsed, startTimer, stopTimer, isRunning, pauseTimer, resumeTimer } = useTimer();
   const [isStarted, setIsStarted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isStopped, setIsStopped] = useState(false);
@@ -19,19 +19,18 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
   useEffect(() => {
     if (activeLog && activeLog.id === event.id) {
       setIsStarted(true);
-      setIsPaused(false);
+      setIsPaused(activeLog.extendedProps.isPaused || false);
       setIsStopped(false);
     } else if (event.extendedProps.isStopped) {
       setIsStarted(false);
       setIsPaused(false);
       setIsStopped(true);
     }
-  }, [activeLog, event.id, event.extendedProps.isStopped]);
+  }, [activeLog, event.id, event.extendedProps.isStopped, event.extendedProps.isPaused]);
 
   const handleStart = (e: React.MouseEvent) => {
     e.stopPropagation();
     
-    // Create a new work log with all required properties
     const workLog: WorkLogData = {
       id: event.id,
       title: event.title,
@@ -41,51 +40,49 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
         type: event.extendedProps.type || 'deep',
         category: event.extendedProps.category,
         inProgress: true,
+        isPaused: false,
         description: event.extendedProps.description
       }
     };
 
-    // Save the work log first
     workLogService.saveWorkLog(workLog);
-    
-    // Then start the timer
     startTimer(workLog);
   };
 
   const handlePause = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Pause functionality can be implemented if needed
-    setIsPaused(!isPaused);
+    if (activeLog && activeLog.id === event.id) {
+      if (isPaused) {
+        resumeTimer();
+      } else {
+        pauseTimer();
+      }
+      setIsPaused(!isPaused);
+    }
   };
 
   const handleStop = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeLog && activeLog.id === event.id) {
-      // Calculate duration before stopping
       const startTime = new Date(activeLog.start).getTime();
       const endTime = new Date().getTime();
       const duration = endTime - startTime;
 
-      // Stop the timer first to clear the active state
       stopTimer();
 
-      // Update the work log with end time
       const updatedLog = {
         ...activeLog,
         end: new Date().toISOString(),
         extendedProps: {
           ...activeLog.extendedProps,
-          inProgress: false
+          inProgress: false,
+          isPaused: false
         }
       };
 
-      // Save the updated log
       workLogService.saveWorkLog(updatedLog);
-
-      // Update total work time
       workLogService.updateTotalWorkTime(duration);
 
-      // Update local state
       setIsStarted(false);
       setIsPaused(false);
       setIsStopped(true);
@@ -99,6 +96,16 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
     return `${hours}h ${minutes}m ${seconds}s`;
+  };
+
+  // Calculate duration for non-active events
+  const calculateDuration = () => {
+    if (!event.start || !event.end) return '0h 0m 0s';
+    
+    const start = new Date(event.start).getTime();
+    const end = new Date(event.end).getTime();
+    const duration = end - start;
+    return formatElapsedTime(duration);
   };
 
   const isActive = isRunning && activeLog?.id === event.id;
@@ -126,7 +133,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
             {isActive ? (
               `Duration: ${formatElapsedTime(elapsed)}`
             ) : (
-              `Duration: ${event.extendedProps.duration || '1:30 h'}`
+              `Duration: ${calculateDuration()}`
             )}
           </div>
         </div>
@@ -147,11 +154,17 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
               <button
                 onClick={handlePause}
                 className="p-1.5 rounded hover:bg-white/20 transition-colors"
-                title="Pause"
+                title={isPaused ? "Resume" : "Pause"}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="6" y1="4" x2="6" y2="20"></line>
-                  <line x1="18" y1="4" x2="18" y2="20"></line>
+                  {isPaused ? (
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                  ) : (
+                    <>
+                      <line x1="6" y1="4" x2="6" y2="20"></line>
+                      <line x1="18" y1="4" x2="18" y2="20"></line>
+                    </>
+                  )}
                 </svg>
               </button>
               <button

@@ -7,6 +7,7 @@ export interface WorkLogData {
       type: 'deep' | 'shallow';
       category?: string;
       inProgress?: boolean;
+      isPaused?: boolean;
       description?: string;
     };
   }

@@ -1,7 +1,6 @@
 import { EventData } from '../../types/event.types';
 import * as eventService from '../../api/eventService';
 import { createAction, createAsyncThunk } from '@reduxjs/toolkit';
-import { EventsState } from './types';
 
 export const setEvents = createAction<EventData[]>('events/setEvents');
 export const setSelectedEvent = createAction<EventData | null>('events/setSelectedEvent');

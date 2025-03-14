@@ -78,12 +78,7 @@ export function useTaskDragDrop(
 export function useSubtaskDragDrop(
   taskIndex: number,
   subtaskIndex: number,
-  subtaskId: string,
-  moveSubtaskToTask: (
-    sourceTaskIndex: number,
-    subtaskIndex: number,
-    targetTaskIndex?: number
-  ) => void
+  subtaskId: string
 ) {
   const ref = useRef<HTMLLIElement>(null);
 

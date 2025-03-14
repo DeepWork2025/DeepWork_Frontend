@@ -8,10 +8,11 @@ export const useTimer = () => {
   );
   const [elapsed, setElapsed] = useState(0);
   const [totalWorkTime, setTotalWorkTime] = useState(() => workLogService.getTotalWorkTime());
+  const [pausedAt, setPausedAt] = useState<number | null>(null);
   
   // Update elapsed time every second for active timer
   useEffect(() => {
-    if (!activeLog?.extendedProps.inProgress) return;
+    if (!activeLog?.extendedProps.inProgress || activeLog?.extendedProps.isPaused) return;
     
     const startTime = new Date(activeLog.start).getTime();
     
@@ -20,7 +21,7 @@ export const useTimer = () => {
     }, 1000);
     
     return () => clearInterval(interval);
-  }, [activeLog]);
+  }, [activeLog, pausedAt]);
 
   // Update total work time when it changes
   useEffect(() => {
@@ -28,7 +29,6 @@ export const useTimer = () => {
       setTotalWorkTime(event.detail.totalTime);
     };
 
-    // Listen for both storage and custom events
     window.addEventListener('storage', () => {
       setTotalWorkTime(workLogService.getTotalWorkTime());
     });
@@ -46,6 +46,7 @@ export const useTimer = () => {
   const startTimer = useCallback((log: WorkLogData) => {
     const updatedLog = workLogService.startWorkLog(log);
     setActiveLog(updatedLog);
+    setPausedAt(null);
     return updatedLog;
   }, []);
   
@@ -54,9 +55,40 @@ export const useTimer = () => {
       const stoppedLog = workLogService.stopWorkLog(activeLog);
       setActiveLog(null);
       setElapsed(0);
+      setPausedAt(null);
       return stoppedLog;
     }
     return null;
+  }, [activeLog]);
+
+  const pauseTimer = useCallback(() => {
+    if (activeLog) {
+      setPausedAt(Date.now());
+      const updatedLog = {
+        ...activeLog,
+        extendedProps: {
+          ...activeLog.extendedProps,
+          isPaused: true
+        }
+      };
+      workLogService.saveWorkLog(updatedLog);
+      setActiveLog(updatedLog);
+    }
+  }, [activeLog]);
+
+  const resumeTimer = useCallback(() => {
+    if (activeLog) {
+      setPausedAt(null);
+      const updatedLog = {
+        ...activeLog,
+        extendedProps: {
+          ...activeLog.extendedProps,
+          isPaused: false
+        }
+      };
+      workLogService.saveWorkLog(updatedLog);
+      setActiveLog(updatedLog);
+    }
   }, [activeLog]);
 
   const resetTotalTime = useCallback(() => {
@@ -69,7 +101,9 @@ export const useTimer = () => {
     elapsed, 
     startTimer, 
     stopTimer,
-    isRunning: !!activeLog?.extendedProps.inProgress,
+    pauseTimer,
+    resumeTimer,
+    isRunning: !!activeLog?.extendedProps.inProgress && !activeLog?.extendedProps.isPaused,
     totalWorkTime,
     resetTotalTime
   };

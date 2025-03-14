@@ -9,7 +9,6 @@ console.log('TESTING CONSOLE LOG');
 
 const CalendarContainer = () => {
   const {
-    events,
     selectedEvent,
     isFormOpen,
     setIsFormOpen,

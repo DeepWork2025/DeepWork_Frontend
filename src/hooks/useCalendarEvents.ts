@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { EventData } from '../types/event.types';
 import { RootState, AppDispatch } from '../store';
 import * as actions from '../store/events/actions';
@@ -59,15 +60,15 @@ export const useCalendarEvents = () => {
     dispatch(actions.saveEvent(eventData));
   }, [dispatch]);
 
-  const handleEventResize = useCallback((dropInfo: EventDropArg) => {
+  const handleEventResize = useCallback((resizeInfo: EventResizeDoneArg) => {
     const eventData: EventData = {
-      id: Number(dropInfo.event.id),
-      title: dropInfo.event.title,
-      startTime: dropInfo.event.start!.toISOString(),
-      endTime: dropInfo.event.end!.toISOString(),
-      description: dropInfo.event.extendedProps.description || '',
-      label: dropInfo.event.extendedProps.label || '',
-      backgroundColor: dropInfo.event.backgroundColor || '#3788d8'
+      id: Number(resizeInfo.event.id),
+      title: resizeInfo.event.title,
+      startTime: resizeInfo.event.start!.toISOString(),
+      endTime: resizeInfo.event.end!.toISOString(),
+      description: resizeInfo.event.extendedProps.description || '',
+      label: resizeInfo.event.extendedProps.label || '',
+      backgroundColor: resizeInfo.event.backgroundColor || '#3788d8'
     };
     dispatch(actions.saveEvent(eventData));
   }, [dispatch]);

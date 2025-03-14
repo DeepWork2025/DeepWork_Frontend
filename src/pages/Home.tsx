@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "../components/navbar/Navbar";
 import RightSideBar from "../components/rightSideBar/RightSideBar";
-import CalendarContainer from "../components/Calendar/CalendarContainer";
+import CalendarContainer from "../components/calendar/CalendarContainer";
 import LeftSideBar from "../components/leftSideBar/LeftSideBar";
 
 const Home: React.FC = () => {
