@@ -45,7 +45,7 @@ const App: React.FC = () => {
         <AvatarProvider>
           <Router>
             <Routes>
-              <Route path="/" element={<Banner />} />
+              <Route path="/" element={<Home />} />
               <Route
                 path="/register"
                 // element={<Register onRegister={handleRegister} />}
@@ -54,7 +54,7 @@ const App: React.FC = () => {
               // element={<Login onLogin={handleLogin} />}
               />
               {/* <Route element={<PrivateRoute />}> */}
-              <Route path="/home" element={<Home />} />
+              <Route path="/banner" element={<Banner />} />
               {/* </Route> */}
               <Route path="/profile" element={<ProfilePage />} />
             </Routes>
