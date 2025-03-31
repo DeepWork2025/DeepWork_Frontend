@@ -1,6 +1,4 @@
-import React, { useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
+import React from "react";
 import {
   useTaskReorderDragDrop,
   useTaskSubtaskConversion,
@@ -8,12 +6,8 @@ import {
 import { TaskContextMenu } from "./TaskContextMenu";
 import DraggableTask from "./DraggableTask";
 import SubtaskItem from "./SubtaskItem";
-import AddTaskForm from "./AddTaskForm";
-import RootDropArea from "./RootDropArea";
-import { TaskListProps, TaskItemProps } from "../../types/TaskTypes";
-import { useTaskManagement } from "../../hooks/useTaskManagement";
+import { TaskItemProps } from "../../types/TaskTypes";
 
-// Separate component for tasks
 const TaskItem: React.FC<TaskItemProps> = ({
   task,
   index,
@@ -33,18 +27,15 @@ const TaskItem: React.FC<TaskItemProps> = ({
   deleteTask,
   deleteSubtask,
 }) => {
-  // Use the reordering hook for the list item
   const {
     ref,
     isDragging,
     isOver: isOverForReorder,
   } = useTaskReorderDragDrop(index, task.id, reorderTask);
 
-  // Use the subtask conversion hook for the task content div
   const { ref: contentRef, isOver: isOverForConversion } =
     useTaskSubtaskConversion(index, moveSubtaskToTask, moveTaskToSubtask);
 
-  // Determine if we should show the subtask indicator
   const hasHiddenSubtasks = task.subtasks.length > 0 && !task.isExpanded;
 
   return (
@@ -85,7 +76,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
           >
             {task.text}
 
-            {/* Subtask indicator icon */}
             {hasHiddenSubtasks && (
               <span className="ml-2 text-gray-400 text-sm flex items-center">
                 <svg
@@ -106,7 +96,6 @@ const TaskItem: React.FC<TaskItemProps> = ({
               </span>
             )}
 
-            {/* Expanded indicator */}
             {task.subtasks.length > 0 && task.isExpanded && (
               <span className="ml-2 text-gray-400 text-sm flex items-center">
                 <svg
@@ -179,75 +168,4 @@ const TaskItem: React.FC<TaskItemProps> = ({
   );
 };
 
-export default function TaskList({ tasks, setTasks }: TaskListProps) {
-  const [newTask, setNewTask] = useState("");
-  const [newSubtask, setNewSubtask] = useState("");
-  const [activeTaskIndex, setActiveTaskIndex] = useState<number | null>(null);
-
-  const {
-    addTask,
-    toggleTask,
-    toggleSubtasks,
-    addSubtask,
-    toggleSubtask,
-    handleAddSubtaskClick,
-    handleSubtaskInputChange,
-    handleBlurSubtaskInput,
-    moveSubtaskToTask,
-    moveTaskToSubtask,
-    reorderTask,
-    deleteTask,
-    convertSubtaskToTask,
-    deleteSubtask,
-  } = useTaskManagement(
-    tasks,
-    setTasks,
-    newTask,
-    setNewTask,
-    newSubtask,
-    setNewSubtask,
-    activeTaskIndex,
-    setActiveTaskIndex
-  );
-
-  return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="w-full h-screen overflow-hidden max-w-md mx-auto p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4">Tasks</h2>
-
-        <RootDropArea moveSubtaskToTask={moveSubtaskToTask}>
-          <ul className="space-y-3 mb-4 task-list">
-            {tasks.map((task, index) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                index={index}
-                toggleTask={toggleTask}
-                toggleSubtasks={toggleSubtasks}
-                toggleSubtask={toggleSubtask}
-                handleAddSubtaskClick={handleAddSubtaskClick}
-                moveSubtaskToTask={moveSubtaskToTask}
-                moveTaskToSubtask={moveTaskToSubtask}
-                reorderTask={reorderTask}
-                activeTaskIndex={activeTaskIndex}
-                newSubtask={newSubtask}
-                handleSubtaskInputChange={handleSubtaskInputChange}
-                handleBlurSubtaskInput={handleBlurSubtaskInput}
-                addSubtask={addSubtask}
-                convertSubtaskToTask={convertSubtaskToTask}
-                deleteTask={deleteTask}
-                deleteSubtask={deleteSubtask}
-              />
-            ))}
-
-            <AddTaskForm
-              newTask={newTask}
-              setNewTask={setNewTask}
-              addTask={addTask}
-            />
-          </ul>
-        </RootDropArea>
-      </div>
-    </DndProvider>
-  );
-}
+export default TaskItem;
