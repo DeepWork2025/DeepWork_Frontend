@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import EventForm from "../event/EventForm";
 import { useCalendarEvents } from '../../hooks/useCalendarEvents';
 import FullCalendarWrapper from "./FullCalendarWrapper";
-
+import ToolBar from "./ToolBar";
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
 
 console.log('TESTING CONSOLE LOG');
@@ -91,7 +91,7 @@ const CalendarContainer = () => {
       </div>
 
       {/* Tool Bar */}
-      {/* <ToolBar /> */}
+      <ToolBar />
 
     {/* Calendars Section */}
     <div className="flex w-full flex-1 overflow-hidden">

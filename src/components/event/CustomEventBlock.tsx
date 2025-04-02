@@ -108,6 +108,24 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
     return formatElapsedTime(duration);
   };
 
+  // Calculate if event is 15 minutes or less
+  const isShortestEvent = () => {
+    if (!event.start || !event.end) return false;
+    const start = new Date(event.start).getTime();
+    const end = new Date(event.end).getTime();
+    const duration = end - start;
+    return duration <= 15 * 60 * 1000; // 15 minutes in milliseconds
+  };
+
+  // Calculate if event is 30 minutes or less
+  const isShortEvent = () => {
+    if (!event.start || !event.end) return false;
+    const start = new Date(event.start).getTime();
+    const end = new Date(event.end).getTime();
+    const duration = end - start;
+    return duration <= 30 * 60 * 1000; // 30 minutes in milliseconds
+  };
+
   const isActive = isRunning && activeLog?.id === event.id;
 
   return (
@@ -123,21 +141,45 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
         }
       `}
     >
-      <div className="flex justify-between items-start p-2 flex-1">
-        <div className="flex-1">
-          <div className="text-sm font-medium text-white">{timeText}</div>
-          <div className="text-sm font-semibold text-white">
-            {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
+      <div className="flex justify-between items-center p-1 flex-1">
+        {isShortestEvent() ? (
+          // Single line layout for shortest events (15 mins or less)
+          <div className="flex-1 min-w-0 px-1.5">
+            <div className="text-sm font-semibold text-white truncate leading-none">
+              {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
+            </div>
           </div>
-          <div className="text-xs text-white/80">
-            {isActive ? (
-              `Duration: ${formatElapsedTime(elapsed)}`
-            ) : (
-              `Duration: ${calculateDuration()}`
-            )}
+        ) : isShortEvent() ? (
+          // Two line layout for short events (30 mins or less)
+          <div className="flex-1 min-w-0 px-1.5">
+            <div className="text-sm font-semibold text-white truncate">
+              {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
+            </div>
+            <div className="text-xs text-white/80 truncate">
+              {isActive ? (
+                `Duration: ${formatElapsedTime(elapsed)}`
+              ) : (
+                `Duration: ${calculateDuration()}`
+              )}
+            </div>
           </div>
-        </div>
-        <div className="flex gap-1 ml-2">
+        ) : (
+          // Full layout for longer events
+          <div className="flex-1 min-w-0 px-1.5">
+            <div className="text-sm font-medium text-white truncate">{timeText}</div>
+            <div className="text-sm font-semibold text-white truncate">
+              {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
+            </div>
+            <div className="text-xs text-white/80 truncate">
+              {isActive ? (
+                `Duration: ${formatElapsedTime(elapsed)}`
+              ) : (
+                `Duration: ${calculateDuration()}`
+              )}
+            </div>
+          </div>
+        )}
+        <div className="flex gap-1 ml-2 shrink-0">
           {!isStarted && !isStopped && (
             <button
               onClick={handleStart}
