@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import dayGridPlugin from '@fullcalendar/daygrid';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin, { Draggable, DropArg } from "@fullcalendar/interaction";
-import { EventClickArg, EventDropArg, EventInput } from '@fullcalendar/core';
-import { useCalendarEvents } from '../../hooks/useCalendarEvents';
-import EventDetailModal from '../event/EventDetailModal';
-import { CustomEventBlock } from '../event/CustomEventBlock';
+import { useState, useEffect, useRef } from "react";
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import { EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
+import { useCalendarEvents } from "../../hooks/useCalendarEvents";
+import EventDetailModal from "../event/EventDetailModal";
+import { CustomEventBlock } from "../event/CustomEventBlock";
+import { useDrop } from "react-dnd";
 
 interface FullCalendarWrapperProps {
   customEvents?: EventInput[];
@@ -17,7 +18,7 @@ interface FullCalendarWrapperProps {
 const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
   customEvents,
   onEventDrop,
-  onEventClick
+  onEventClick,
 }) => {
   const {
     events: defaultEvents,
@@ -28,69 +29,95 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
     handleEventResize,
     selectedEvent,
     loading,
-    saveEvent
+    saveEvent,
   } = useCalendarEvents();
 
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const calendarRef = useRef<HTMLDivElement>(null);
 
   // Use custom events if provided, otherwise use default events
   const events = customEvents || defaultEvents;
   const handleEventDrop = onEventDrop || defaultHandleEventDrop;
   const handleEventClick = onEventClick || defaultHandleEventClick;
 
-  useEffect(() => {
-    // Initialize Draggable for all task elements
-    const taskContainer = document.querySelector('.task-list') as HTMLElement;
-    if (taskContainer) {
-      new Draggable(taskContainer, {
-        itemSelector: '[data-event]',
-        eventData: function(eventEl) {
-          const eventData = eventEl.getAttribute('data-event');
-          return eventData ? JSON.parse(eventData) : null;
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "TASK",
+    drop: (item: any, monitor) => {
+      if (!monitor.didDrop()) {
+        const dropTarget = calendarRef.current;
+        if (dropTarget) {
+          const clientOffset = monitor.getClientOffset();
+          if (clientOffset) {
+            // Convert coordinates to date
+            const timeGrid = dropTarget.querySelector(".fc-timegrid-body");
+            if (timeGrid) {
+              const timeGridRect = timeGrid.getBoundingClientRect();
+              const relativeYInTimeGrid = clientOffset.y - timeGridRect.top;
+              const timeSlotHeight = timeGridRect.height / 24;
+              const hours = relativeYInTimeGrid / timeSlotHeight;
+
+              const dropDate = new Date();
+              dropDate.setHours(Math.floor(hours));
+              dropDate.setMinutes(Math.round((hours % 1) * 60));
+
+              // Create new event
+              const newEvent = {
+                id: item.id,
+                title: item.title,
+                start: dropDate,
+                end: new Date(dropDate.getTime() + 60 * 60 * 1000),
+                backgroundColor: "#3788d8",
+                borderColor: "#3788d8",
+                textColor: "#ffffff",
+                extendedProps: {
+                  ...item.extendedProps,
+                  isStopped: false,
+                },
+              };
+
+              // Save the event
+              saveEvent({
+                id: Number(newEvent.id),
+                title: newEvent.title,
+                startTime: newEvent.start.toISOString(),
+                endTime: newEvent.end.toISOString(),
+                description: newEvent.extendedProps.description || "",
+                label: newEvent.extendedProps.label || "",
+                backgroundColor: newEvent.backgroundColor,
+              });
+            }
+          }
         }
-      });
-    }
-  }, []);
-
-  const handleDrop = (info: DropArg) => {
-    console.log('Drop event received:', info);
-    
-    try {
-      // Create a new event from the drop data
-      const eventData = {
-        id: Date.now(),
-        title: info.draggedEl.getAttribute('data-event-title') || 'New Event',
-        startTime: info.date.toISOString(),
-        endTime: new Date(info.date.getTime() + 60 * 60 * 1000).toISOString(), // 1 hour duration
-        description: '',
-        label: 'default',
-        backgroundColor: '#3788d8'
-      };
-      
-      console.log('Creating new event:', eventData);
-      saveEvent(eventData);
-    } catch (error) {
-      console.error('Error handling drop:', error);
-    }
-  };
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
 
   useEffect(() => {
-    console.log('Current events in FullCalendar:', events);
-    events.forEach(event => {
-      console.log('Event details:', {
+    console.log("Current events in FullCalendar:", events);
+    events.forEach((event) => {
+      console.log("Event details:", {
         id: event.id,
         title: event.title,
         start: event.start,
         end: event.end,
         backgroundColor: event.backgroundColor,
-        extendedProps: event.extendedProps
+        extendedProps: event.extendedProps,
       });
     });
   }, [events]);
 
   return (
     <div className="h-full min-h-[600px]">
-      <div className="h-full">
+      <div
+        className={`h-full ${isOver ? "bg-blue-50" : ""}`}
+        ref={(node) => {
+          drop(node);
+          calendarRef.current = node;
+        }}
+      >
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-gray-500">Loading calendar...</div>
@@ -111,11 +138,10 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
             selectable={true}
             selectMirror={true}
             editable={true}
-            droppable={true}
-            drop={handleDrop}
+            droppable={false}
             select={handleDateSelect}
             eventClick={(e) => {
-              console.log('Event clicked:', e.event);
+              console.log("Event clicked:", e.event);
               handleEventClick(e);
               setIsDetailModalOpen(true);
             }}
@@ -125,14 +151,18 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
             nowIndicator={true}
             allDaySlot={false}
             eventContent={(arg) => {
-              console.log('Rendering event:', arg.event);
-              return <CustomEventBlock event={arg.event} timeText={arg.timeText} />;
+              console.log("Rendering event:", arg.event);
+              return (
+                <CustomEventBlock event={arg.event} timeText={arg.timeText} />
+              );
             }}
             viewDidMount={(view) => {
               // Ensure the time grid has a minimum height
-              const timeGrid = view.el.querySelector('.fc-timegrid-body') as HTMLElement;
+              const timeGrid = view.el.querySelector(
+                ".fc-timegrid-body"
+              ) as HTMLElement;
               if (timeGrid) {
-                timeGrid.style.minHeight = '600px';
+                timeGrid.style.minHeight = "600px";
               }
             }}
           />
