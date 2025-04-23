@@ -1,6 +1,14 @@
 import React, { useState } from "react";
 
-const MonthCalendar: React.FC = () => {
+interface MonthCalendarProps {
+  selectedDate?: Date;
+  onDateClick?: (date: Date) => void;
+}
+
+const MonthCalendar: React.FC<MonthCalendarProps> = ({
+  selectedDate,
+  onDateClick
+}) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const today = new Date();
 
@@ -24,32 +32,48 @@ const MonthCalendar: React.FC = () => {
     today.getMonth() === currentDate.getMonth() &&
     today.getFullYear() === currentDate.getFullYear();
 
+  const isSelected = (date: Date) =>
+    selectedDate &&
+    date.getDate() === selectedDate.getDate() &&
+    date.getMonth() === selectedDate.getMonth() &&
+    date.getFullYear() === selectedDate.getFullYear();
+
   const renderDays = () => {
     const days = [];
     const totalDays = daysInMonth(currentDate);
     const startingDay = startDay(currentDate);
 
+    // Fill empty cells before the 1st
     for (let i = 0; i < startingDay; i++) {
-      days.push(<div key={`empty-${i}`} className="w-10 h-10"></div>);
+      days.push(<div key={`empty-${i}`} className="w-10 h-10" />);
     }
 
-    for (let i = 1; i <= totalDays; i++) {
-      days.push(
-        <div
-          key={i}
-          className={`w-10 h-10 flex items-center justify-center text-xs font-medium cursor-pointer rounded-md transition ${
-            isToday(i)
-              ? "bg-blue-500 text-white font-bold shadow-md"
-              : "hover:bg-gray-200 text-gray-700"
-          }`}
-        >
-          {i}
-        </div>
-      );
-    }
+// Fill actual days
+for (let i = 1; i <= totalDays; i++) {
+  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+  const isCurrent = isToday(date);
+  const isPicked = isSelected(date);
 
-    return days;
-  };
+  const baseStyle =
+    "w-10 h-10 flex items-center justify-center text-xs font-medium cursor-pointer rounded-md transition";
+  const todayStyle = isCurrent
+    ? "bg-blue-500 text-white font-bold shadow-md"
+    : "hover:bg-gray-200 text-gray-700";
+  const selectedStyle = isPicked ? "ring-2 ring-blue-500" : "";
+
+  days.push(
+    <div
+      key={i}
+      onClick={() => onDateClick?.(date)}
+      className={`${baseStyle} ${todayStyle} ${selectedStyle}`}
+    >
+      {i}
+    </div>
+  );
+}
+
+return days;
+};
 
   return (
     <div className="max-w-xs mx-auto h-[360px] flex flex-col border rounded-lg shadow-md bg-white overflow-hidden">

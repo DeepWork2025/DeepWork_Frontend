@@ -5,9 +5,11 @@ import FullCalendarWrapper from "./FullCalendarWrapper";
 // import ToolBar from "./ToolBar";
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
 
-console.log('TESTING CONSOLE LOG');
+interface CalendarContainerProps {
+  selectedDate: Date;
+}
 
-const CalendarContainer = () => {
+const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => {
   const {
     selectedEvent,
     isFormOpen,
@@ -63,16 +65,18 @@ const CalendarContainer = () => {
       }
     };
 
-
-  // Format today's date for display
-  const formatTodayDate = () => {
+  // Helper function with display date
+  const formatHeaderDate = (date: Date) => {
     const today = new Date();
-    const options: Intl.DateTimeFormatOptions = {
-      day: 'numeric',
-      month: 'short',
-      weekday: 'long'
-    };
-    return today.toLocaleDateString('en-US', options);
+    const isToday =
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear();
+
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
+
+    return `${isToday ? "Today " : ""}${day} ${month}`;
   };
 
   return (
@@ -80,7 +84,9 @@ const CalendarContainer = () => {
       <div className="flex justify-between items-center  bg-white shadow w-full">
         {/* Header section with full row.*/}
         <header className="p-4 bg-white">
-          <h1 className="text-2xl"><b>Today</b><span> {formatTodayDate()}</span></h1>
+          <h1 className="text-2xl">
+            {formatHeaderDate(selectedDate)}
+          </h1>
         </header>
         <button
           onClick={handleAddEvent}
@@ -100,7 +106,10 @@ const CalendarContainer = () => {
         className="w-1/2 bg-gray-100 overflow-auto"
         onScroll={handleScroll}
         >
-          <FullCalendarWrapper />
+          <FullCalendarWrapper
+          selectedDate={selectedDate}
+          key={selectedDate.toISOString()} // force re-render on date change
+          />
         </div>
 
         {/* Right: WorkLog Calendar */}
