@@ -1,21 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { EventContentArg } from '@fullcalendar/core';
-import { useTimer } from '../../hooks/useTimer';
-import { WorkLogData } from '../../types/workLog.type';
-import * as workLogService from '../../api/workLogService';
+import React, { useState, useEffect } from "react";
+import { EventContentArg } from "@fullcalendar/core";
+import { useTimer } from "../../hooks/useTimer";
+import { WorkLogData } from "../../types/workLog.type";
+import * as workLogService from "../../api/workLogService";
 
 interface CustomEventBlockProps {
-  event: EventContentArg['event'];
+  event: EventContentArg["event"];
   timeText: string;
 }
 
-export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeText }) => {
-  const { activeLog, elapsed, startTimer, stopTimer, isRunning, pauseTimer, resumeTimer } = useTimer();
+export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
+  event,
+  timeText,
+}) => {
+  const {
+    activeLog,
+    elapsed,
+    startTimer,
+    stopTimer,
+    isRunning,
+    pauseTimer,
+    resumeTimer,
+  } = useTimer();
   const [isStarted, setIsStarted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isStopped, setIsStopped] = useState(false);
 
-  // Check if this event is the active log
   useEffect(() => {
     if (activeLog && activeLog.id === event.id) {
       setIsStarted(true);
@@ -26,25 +36,28 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
       setIsPaused(false);
       setIsStopped(true);
     }
-  }, [activeLog, event.id, event.extendedProps.isStopped, event.extendedProps.isPaused]);
+  }, [
+    activeLog,
+    event.id,
+    event.extendedProps.isStopped,
+    event.extendedProps.isPaused,
+  ]);
 
   const handleStart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
     const workLog: WorkLogData = {
       id: event.id,
       title: event.title,
       start: new Date().toISOString(),
-      end: '',
+      end: "",
       extendedProps: {
-        type: event.extendedProps.type || 'deep',
+        type: event.extendedProps.type || "deep",
         category: event.extendedProps.category,
         inProgress: true,
         isPaused: false,
-        description: event.extendedProps.description
-      }
+        description: event.extendedProps.description,
+      },
     };
-
     workLogService.saveWorkLog(workLog);
     startTimer(workLog);
   };
@@ -76,8 +89,8 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
         extendedProps: {
           ...activeLog.extendedProps,
           inProgress: false,
-          isPaused: false
-        }
+          isPaused: false,
+        },
       };
 
       workLogService.saveWorkLog(updatedLog);
@@ -89,7 +102,6 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
     }
   };
 
-  // Format elapsed time (HH:MM:SS)
   const formatElapsedTime = (ms: number) => {
     const totalSeconds = Math.floor(ms / 1000);
     const hours = Math.floor(totalSeconds / 3600);
@@ -98,136 +110,111 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({ event, timeT
     return `${hours}h ${minutes}m ${seconds}s`;
   };
 
-  // Calculate duration for non-active events
   const calculateDuration = () => {
-    if (!event.start || !event.end) return '0h 0m 0s';
-    
+    if (!event.start || !event.end) return "0h 0m 0s";
     const start = new Date(event.start).getTime();
     const end = new Date(event.end).getTime();
-    const duration = end - start;
-    return formatElapsedTime(duration);
+    return formatElapsedTime(end - start);
   };
 
-  // Calculate if event is 15 minutes or less
+  const formatTimeDisplay = () => {
+    if (!event.start || !event.end) return timeText;
+    const start = new Date(event.start);
+    const end = new Date(event.end);
+    const format = (d: Date) =>
+      d.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      });
+    return `${format(start)} - ${format(end)}`;
+  };
+
   const isShortestEvent = () => {
     if (!event.start || !event.end) return false;
-    const start = new Date(event.start).getTime();
-    const end = new Date(event.end).getTime();
-    const duration = end - start;
-    return duration <= 15 * 60 * 1000; // 15 minutes in milliseconds
+    return new Date(event.end).getTime() - new Date(event.start).getTime() <= 15 * 60 * 1000;
   };
 
-  // Calculate if event is 30 minutes or less
   const isShortEvent = () => {
     if (!event.start || !event.end) return false;
-    const start = new Date(event.start).getTime();
-    const end = new Date(event.end).getTime();
-    const duration = end - start;
-    return duration <= 30 * 60 * 1000; // 30 minutes in milliseconds
+    return new Date(event.end).getTime() - new Date(event.start).getTime() <= 30 * 60 * 1000;
   };
 
   const isActive = isRunning && activeLog?.id === event.id;
+  const label = event.extendedProps.label || null;
 
   return (
-    <div 
+    <div
       className={`
         h-full w-full rounded-lg shadow-sm flex flex-col
         transition-all duration-300 ease-in-out
-        ${isActive 
-          ? 'bg-sky-500 shadow-lg scale-[1.02]' 
-          : isStopped 
-            ? 'bg-sky-400' 
-            : 'bg-sky-450'
+        ${
+          isActive
+            ? "bg-sky-500 shadow-lg scale-[1.02]"
+            : isStopped
+            ? "bg-sky-400"
+            : "bg-sky-450"
         }
       `}
     >
-      <div className="flex justify-between items-center p-1 flex-1">
+      <div className="flex justify-between items-center p-2 flex-1">
         {isShortestEvent() ? (
-          // Single line layout for shortest events (15 mins or less)
+          // 👉 单行展示（小于15分钟）
           <div className="flex-1 min-w-0 px-1.5">
-            <div className="text-sm font-semibold text-white truncate leading-none">
+            <div className="text-sm font-semibold text-white truncate">
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
           </div>
         ) : isShortEvent() ? (
-          // Two line layout for short events (30 mins or less)
+          // 👉 两行展示（小于30分钟）
           <div className="flex-1 min-w-0 px-1.5">
             <div className="text-sm font-semibold text-white truncate">
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
             <div className="text-xs text-white/80 truncate">
-              {isActive ? (
-                `Duration: ${formatElapsedTime(elapsed)}`
-              ) : (
-                `Duration: ${calculateDuration()}`
-              )}
+              {isActive ? `Duration: ${formatElapsedTime(elapsed)}` : `Duration: ${calculateDuration()}`}
             </div>
           </div>
         ) : (
-          // Full layout for longer events
+          // 👉 完整展示（超过30分钟）
           <div className="flex-1 min-w-0 px-1.5">
-            <div className="text-sm font-medium text-white truncate">{timeText}</div>
+            <div className="text-sm font-medium text-white truncate">
+              {formatTimeDisplay()}
+            </div>
             <div className="text-sm font-semibold text-white truncate">
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
             <div className="text-xs text-white/80 truncate">
-              {isActive ? (
-                `Duration: ${formatElapsedTime(elapsed)}`
-              ) : (
-                `Duration: ${calculateDuration()}`
-              )}
+              {isActive ? `Duration: ${formatElapsedTime(elapsed)}` : `Duration: ${calculateDuration()}`}
             </div>
+            {label && (
+              <span className="text-xs inline-block px-2 py-0.5 mt-1 bg-white/20 rounded-full text-white">
+                {label}
+              </span>
+            )}
           </div>
         )}
+
+        {/* 操作按钮区域 */}
         <div className="flex gap-1 ml-2 shrink-0">
           {!isStarted && !isStopped && (
-            <button
-              onClick={handleStart}
-              className="p-1.5 rounded hover:bg-white/20 transition-colors"
-              title="Start"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
+            <button onClick={handleStart} className="p-1.5 rounded hover:bg-white/20" title="Start">
+              ▶️
             </button>
           )}
           {isStarted && !isStopped && (
             <>
-              <button
-                onClick={handlePause}
-                className="p-1.5 rounded hover:bg-white/20 transition-colors"
-                title={isPaused ? "Resume" : "Pause"}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  {isPaused ? (
-                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
-                  ) : (
-                    <>
-                      <line x1="6" y1="4" x2="6" y2="20"></line>
-                      <line x1="18" y1="4" x2="18" y2="20"></line>
-                    </>
-                  )}
-                </svg>
+              <button onClick={handlePause} className="p-1.5 rounded hover:bg-white/20" title={isPaused ? "Resume" : "Pause"}>
+                {isPaused ? "▶️" : "⏸"}
               </button>
-              <button
-                onClick={handleStop}
-                className="p-1.5 rounded hover:bg-white/20 transition-colors"
-                title="Stop"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                </svg>
+              <button onClick={handleStop} className="p-1.5 rounded hover:bg-white/20" title="Stop">
+                ⏹
               </button>
             </>
           )}
           {isStopped && (
-            <button
-              className="p-1.5 rounded hover:bg-white/20 transition-colors"
-              title="Mark Complete"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
+            <button className="p-1.5 rounded hover:bg-white/20" title="Completed">
+              ✅
             </button>
           )}
         </div>

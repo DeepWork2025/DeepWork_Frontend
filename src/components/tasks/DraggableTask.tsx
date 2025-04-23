@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import { useDrag } from "react-dnd";
 
 interface Subtask {
   id: string;
@@ -19,32 +20,32 @@ interface DraggableTaskProps {
   children: React.ReactNode;
 }
 
-const DraggableTask: React.FC<DraggableTaskProps> = ({ 
-  task, 
-  children
-}) => {
-  // Create the event data that will be used when dropped on the calendar
-  const eventData = {
-    id: `task-${task.id}`,
-    title: task.text,
-    duration: '01:00', // Default 1 hour duration
-    extendedProps: {
-      taskId: task.id,
-      isTaskEvent: true
-    }
-  };
+const DraggableTask: React.FC<DraggableTaskProps> = ({ task, children }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "TASK",
+    item: {
+      id: `task-${task.id}`,
+      title: task.text,
+      extendedProps: {
+        taskId: task.id,
+        isTaskEvent: true,
+        description: task.text,
+        label: "Deep",
+      },
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
 
   return (
     <div className="flex items-center gap-2">
       {/* Calendar drag handle */}
       <div
-        draggable
-        data-event={JSON.stringify(eventData)}
-        className="cursor-move px-2 py-1 text-gray-500 hover:text-gray-700"
-        onDragStart={(e) => {
-          e.dataTransfer.setData('text/plain', JSON.stringify(eventData));
-          e.dataTransfer.effectAllowed = 'copy';
-        }}
+        ref={drag}
+        className={`cursor-move px-2 py-1 text-gray-500 hover:text-gray-700 ${
+          isDragging ? "opacity-50" : ""
+        }`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -62,11 +63,9 @@ const DraggableTask: React.FC<DraggableTaskProps> = ({
         </svg>
       </div>
       {/* Task content */}
-      <div className="flex-grow">
-        {children}
-      </div>
+      <div className="flex-grow">{children}</div>
     </div>
   );
 };
 
-export default DraggableTask; 
+export default DraggableTask;
