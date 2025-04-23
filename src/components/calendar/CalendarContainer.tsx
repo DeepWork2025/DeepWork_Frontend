@@ -91,7 +91,7 @@ const CalendarContainer = () => {
       </div>
 
       {/* Tool Bar */}
-      <ToolBar />
+      <ToolBar leftCalendarRef={leftCalendarRef} rightCalendarRef={rightCalendarRef} />
 
     {/* Calendars Section */}
     <div className="flex w-full flex-1 overflow-hidden">

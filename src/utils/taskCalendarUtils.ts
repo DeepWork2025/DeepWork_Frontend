@@ -1,22 +1,5 @@
-import { EventInput } from '@fullcalendar/core';
-
-// Interfaces for task and subtask types
-interface Subtask {
-  id: string;
-  text: string;
-  completed: boolean;
-  dueDate?: string;  // Optional due date for subtasks
-}
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  subtasks: Subtask[];
-  isExpanded: boolean;
-  // Add optional dueDate field which might be set when dragged to calendar
-  dueDate?: string;
-}
+import { EventInput } from "@fullcalendar/core";
+import { Task } from "../types/TaskTypes";
 
 /**
  * Converts tasks and subtasks to calendar events

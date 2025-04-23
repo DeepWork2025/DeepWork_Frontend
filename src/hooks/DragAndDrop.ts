@@ -1,5 +1,3 @@
-"use client";
-
 import { useDrag, useDrop } from "react-dnd";
 import { useRef } from "react";
 
@@ -128,7 +126,8 @@ export function useTaskReorderDragDrop(
         return;
       }
 
-      const dragIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
+      const dragIndex =
+        item.taskIndex !== undefined ? item.taskIndex : item.index;
       if (dragIndex === undefined) {
         return;
       }
@@ -140,9 +139,10 @@ export function useTaskReorderDragDrop(
       }
 
       const hoverBoundingRect = ref.current.getBoundingClientRect();
-      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverMiddleY =
+        (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
       const clientOffset = monitor.getClientOffset();
-      
+
       if (!clientOffset) return;
 
       const hoverClientY = clientOffset.y - hoverBoundingRect.top;
@@ -198,14 +198,16 @@ export function useTaskSubtaskConversion(
       if (item.type === ItemTypes.SUBTASK && item.subtaskIndex !== undefined) {
         moveSubtaskToTask(item.taskIndex, item.subtaskIndex, taskIndex);
       } else if (item.type === ItemTypes.TASK) {
-        const sourceIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
+        const sourceIndex =
+          item.taskIndex !== undefined ? item.taskIndex : item.index;
         if (sourceIndex !== undefined && sourceIndex !== taskIndex) {
           moveTaskToSubtask(sourceIndex, taskIndex);
         }
       }
     },
     canDrop: (item: DragItem) => {
-      const sourceIndex = item.taskIndex !== undefined ? item.taskIndex : item.index;
+      const sourceIndex =
+        item.taskIndex !== undefined ? item.taskIndex : item.index;
       return (
         item.type === ItemTypes.SUBTASK ||
         (item.type === ItemTypes.TASK && sourceIndex !== taskIndex)

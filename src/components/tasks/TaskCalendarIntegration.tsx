@@ -5,7 +5,7 @@ import {
   convertTasksToCalendarEvents,
   updateTaskFromCalendarEvent,
   toggleTaskCompletionFromEvent,
-} from "./ConvertTaskToCalendaeEvents";
+} from "../../utils/taskCalendarUtils";
 import { EventDropArg, EventClickArg } from "@fullcalendar/core";
 
 // Define task-related interfaces if not imported
@@ -40,11 +40,7 @@ const TaskCalendarIntegration: React.FC = () => {
 
     // Update tasks based on the calendar event change
     setTasks((prevTasks) =>
-      updateTaskFromCalendarEvent(
-        prevTasks,
-        eventId,
-        newStartTime
-      )
+      updateTaskFromCalendarEvent(prevTasks, eventId, newStartTime)
     );
   };
 
@@ -52,9 +48,7 @@ const TaskCalendarIntegration: React.FC = () => {
     const eventId = info.event.id;
 
     // Toggle task completion when clicked
-    setTasks((prevTasks) =>
-      toggleTaskCompletionFromEvent(prevTasks, eventId)
-    );
+    setTasks((prevTasks) => toggleTaskCompletionFromEvent(prevTasks, eventId));
   };
 
   // Function to convert tasks to calendar events

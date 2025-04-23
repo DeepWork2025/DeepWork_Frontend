@@ -21,6 +21,18 @@ const WorkLogCalendar: React.FC = () => {
     }
   }, [date]);
 
+  // Listen for date change events from ToolBar
+  useEffect(() => {
+    const handleDateChange = (event: CustomEvent) => {
+      setDate(event.detail.date);
+    };
+
+    window.addEventListener('workLogDateChange', handleDateChange as EventListener);
+    return () => {
+      window.removeEventListener('workLogDateChange', handleDateChange as EventListener);
+    };
+  }, []);
+
   useEffect(() => {
     // Set the initial scroll position to 6:00 AM after the component mounts
     const timeGrid = document.querySelector('.fc-timegrid-body');
