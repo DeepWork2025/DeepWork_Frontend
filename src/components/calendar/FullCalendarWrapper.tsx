@@ -2,19 +2,27 @@ import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin, {
-  Draggable,
-  DropArg,
-} from "@fullcalendar/interaction";
+import interactionPlugin from "@fullcalendar/interaction";
 import { EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
 import { useCalendarEvents } from "../../hooks/useCalendarEvents";
 import EventDetailModal from "../event/EventDetailModal";
 import { CustomEventBlock } from "../event/CustomEventBlock";
+import { useDrop } from "react-dnd";
 
 interface FullCalendarWrapperProps {
   customEvents?: EventInput[];
   onEventDrop?: (info: EventDropArg) => void;
   onEventClick?: (info: EventClickArg) => void;
+}
+
+interface DraggedTask {
+  id: string;
+  title: string;
+  extendedProps: {
+    description?: string;
+    label?: string;
+    [key: string]: any;
+  };
 }
 
 const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
@@ -41,58 +49,113 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
   const handleEventDrop = onEventDrop || defaultHandleEventDrop;
   const handleEventClick = onEventClick || defaultHandleEventClick;
 
-  useEffect(() => {
-    // Initialize Draggable for all task elements
-    const taskContainer = document.querySelector(".task-list") as HTMLElement;
-    if (taskContainer) {
-      new Draggable(taskContainer, {
-        itemSelector: "[data-event]",
-        eventData: function (eventEl) {
-          const eventData = eventEl.getAttribute("data-event");
-          return eventData ? JSON.parse(eventData) : null;
-        },
-      });
-    }
-  }, []);
+  const [{ isOver }, drop] = useDrop(() => ({
+    accept: "TASK",
+    drop: (item: DraggedTask, monitor) => {
+      if (!monitor.didDrop()) {
+        const dropTarget = document.querySelector(".fc-timegrid-body");
+        if (dropTarget) {
+          const clientOffset = monitor.getClientOffset();
+          if (clientOffset) {
+            const timeGridRect = dropTarget.getBoundingClientRect();
+            const relativeYInTimeGrid = clientOffset.y - timeGridRect.top;
 
-  const handleDrop = (info: DropArg) => {
-    console.log("Drop event received:", info);
+            // Calculate the exact time based on position
+            const timeSlotHeight = timeGridRect.height / 24; // 24 hours in a day
+            const hourDecimal = relativeYInTimeGrid / timeSlotHeight;
 
-    try {
-      const eventData = info.draggedEl.getAttribute("data-event");
-      if (!eventData) return;
+            // Create date at precise drop position
+            const dropDate = new Date();
+            const hours = Math.floor(hourDecimal);
+            const minutes = Math.round((hourDecimal % 1) * 60);
 
-      const parsedData = JSON.parse(eventData);
+            dropDate.setHours(hours, minutes, 0, 0);
 
-      // Create a new event from the task data
-      const newEvent = {
-        id: parsedData.id,
-        title: parsedData.title,
-        start: info.date,
-        end: new Date(info.date.getTime() + 60 * 60 * 1000), // 1 hour duration
-        backgroundColor: "#3788d8",
-        borderColor: "#3788d8",
-        textColor: "#ffffff",
-        extendedProps: {
-          ...parsedData.extendedProps,
-          isStopped: false,
-        },
-      };
+            // Round to nearest 15 minutes for better UX
+            const roundedMinutes = Math.round(minutes / 15) * 15;
+            dropDate.setMinutes(roundedMinutes);
 
-      console.log("Creating new event from task:", newEvent);
-      saveEvent({
-        id: Number(newEvent.id),
-        title: newEvent.title,
-        startTime: newEvent.start.toISOString(),
-        endTime: newEvent.end.toISOString(),
-        description: newEvent.extendedProps.description || "",
-        label: newEvent.extendedProps.label || "",
-        backgroundColor: newEvent.backgroundColor,
-      });
-    } catch (error) {
-      console.error("Error handling drop:", error);
-    }
-  };
+            // Default duration is 1 hour
+            const endDate = new Date(dropDate);
+            endDate.setHours(endDate.getHours() + 1);
+
+            // Check if we're dropping near the end of an existing event
+            // to create a continuous schedule
+            const existingEvents = events.filter((evt) => {
+              if (!evt.end) return false;
+
+              // Convert to Date object if needed
+              const evtEnd =
+                evt.end instanceof Date ? evt.end : new Date(evt.end as string);
+
+              // Events that end within 15 minutes of our drop position
+              const timeDiff = Math.abs(evtEnd.getTime() - dropDate.getTime());
+              return timeDiff < 15 * 60 * 1000; // 15 minutes in milliseconds
+            });
+
+            // If we found an event that ends near our drop position, adjust start time
+            if (existingEvents.length > 0) {
+              // Sort to find the latest ending event
+              existingEvents.sort((a, b) => {
+                const aEnd =
+                  a.end instanceof Date ? a.end : new Date(a.end as string);
+
+                const bEnd =
+                  b.end instanceof Date ? b.end : new Date(b.end as string);
+
+                return bEnd.getTime() - aEnd.getTime();
+              });
+
+              const latestEvent = existingEvents[0];
+              const latestEventEnd =
+                latestEvent.end instanceof Date
+                  ? latestEvent.end
+                  : new Date(latestEvent.end as string);
+
+              // Set our new event to start exactly when the latest event ends
+              dropDate.setTime(latestEventEnd.getTime());
+              endDate.setTime(dropDate.getTime() + 60 * 60 * 1000); // 1 hour later
+            }
+
+            // Create new event
+            const newEvent = {
+              id: item.id,
+              title: item.title,
+              start: dropDate,
+              end: endDate,
+              backgroundColor: "#3788d8",
+              borderColor: "#3788d8",
+              textColor: "#ffffff",
+              extendedProps: {
+                ...item.extendedProps,
+                isStopped: false,
+              },
+            };
+
+            console.log("Creating new event:", {
+              start: dropDate.toLocaleTimeString(),
+              end: endDate.toLocaleTimeString(),
+              title: item.title,
+            });
+
+            // Save the event
+            saveEvent({
+              id: Number(newEvent.id),
+              title: newEvent.title,
+              startTime: newEvent.start.toISOString(),
+              endTime: newEvent.end.toISOString(),
+              description: newEvent.extendedProps.description || "",
+              label: newEvent.extendedProps.label || "",
+              backgroundColor: newEvent.backgroundColor,
+            });
+          }
+        }
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  }));
 
   useEffect(() => {
     console.log("Current events in FullCalendar:", events);
@@ -110,7 +173,7 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
 
   return (
     <div className="h-full min-h-[600px]">
-      <div className="h-full">
+      <div className={`h-full ${isOver ? "bg-blue-50" : ""}`} ref={drop}>
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-gray-500">Loading calendar...</div>
@@ -131,8 +194,8 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
             selectable={true}
             selectMirror={true}
             editable={true}
-            droppable={true}
-            drop={handleDrop}
+            droppable={false}
+            slotEventOverlap={false}
             select={handleDateSelect}
             eventClick={(e) => {
               console.log("Event clicked:", e.event);
