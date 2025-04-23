@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { DndProvider } from "react-dnd";
-import { HTML5Backend } from "react-dnd-html5-backend";
 import {
   useTaskReorderDragDrop,
   useTaskSubtaskConversion,
@@ -211,43 +209,41 @@ export default function TaskList({ tasks, setTasks }: TaskListProps) {
   );
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <div className="w-full h-screen overflow-hidden max-w-md mx-auto p-4 rounded-lg shadow">
-        <h2 className="text-xl font-bold mb-4">Tasks</h2>
+    <div className="w-full h-screen overflow-hidden max-w-md mx-auto p-4 rounded-lg shadow">
+      <h2 className="text-xl font-bold mb-4">Tasks</h2>
 
-        <RootDropArea moveSubtaskToTask={moveSubtaskToTask}>
-          <ul className="space-y-3 mb-4 task-list">
-            {tasks.map((task, index) => (
-              <TaskItem
-                key={task.id}
-                task={task}
-                index={index}
-                toggleTask={toggleTask}
-                toggleSubtasks={toggleSubtasks}
-                toggleSubtask={toggleSubtask}
-                handleAddSubtaskClick={handleAddSubtaskClick}
-                moveSubtaskToTask={moveSubtaskToTask}
-                moveTaskToSubtask={moveTaskToSubtask}
-                reorderTask={reorderTask}
-                activeTaskIndex={activeTaskIndex}
-                newSubtask={newSubtask}
-                handleSubtaskInputChange={handleSubtaskInputChange}
-                handleBlurSubtaskInput={handleBlurSubtaskInput}
-                addSubtask={addSubtask}
-                convertSubtaskToTask={convertSubtaskToTask}
-                deleteTask={deleteTask}
-                deleteSubtask={deleteSubtask}
-              />
-            ))}
-
-            <AddTaskForm
-              newTask={newTask}
-              setNewTask={setNewTask}
-              addTask={addTask}
+      <RootDropArea moveSubtaskToTask={moveSubtaskToTask}>
+        <ul className="space-y-3 mb-4 task-list">
+          {tasks.map((task, index) => (
+            <TaskItem
+              key={task.id}
+              task={task}
+              index={index}
+              toggleTask={toggleTask}
+              toggleSubtasks={toggleSubtasks}
+              toggleSubtask={toggleSubtask}
+              handleAddSubtaskClick={handleAddSubtaskClick}
+              moveSubtaskToTask={moveSubtaskToTask}
+              moveTaskToSubtask={moveTaskToSubtask}
+              reorderTask={reorderTask}
+              activeTaskIndex={activeTaskIndex}
+              newSubtask={newSubtask}
+              handleSubtaskInputChange={handleSubtaskInputChange}
+              handleBlurSubtaskInput={handleBlurSubtaskInput}
+              addSubtask={addSubtask}
+              convertSubtaskToTask={convertSubtaskToTask}
+              deleteTask={deleteTask}
+              deleteSubtask={deleteSubtask}
             />
-          </ul>
-        </RootDropArea>
-      </div>
-    </DndProvider>
+          ))}
+
+          <AddTaskForm
+            newTask={newTask}
+            setNewTask={setNewTask}
+            addTask={addTask}
+          />
+        </ul>
+      </RootDropArea>
+    </div>
   );
 }
