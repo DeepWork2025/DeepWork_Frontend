@@ -10,6 +10,7 @@ import { CustomEventBlock } from "../event/CustomEventBlock";
 import { useDrop } from "react-dnd";
 
 interface FullCalendarWrapperProps {
+  selectedDate: Date;
   customEvents?: EventInput[];
   onEventDrop?: (info: EventDropArg) => void;
   onEventClick?: (info: EventClickArg) => void;
@@ -26,10 +27,24 @@ interface DraggedTask {
 }
 
 const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
+  selectedDate,
   customEvents,
   onEventDrop,
   onEventClick,
 }) => {
+
+// helper function to check if date = today
+const isToday = (date: Date) => {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+};
+
+const isTodayView = isToday(selectedDate);
+
   const {
     events: defaultEvents,
     handleEventClick: defaultHandleEventClick,
@@ -174,6 +189,12 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
   return (
     <div className="h-full min-h-[600px]">
       <div className={`h-full ${isOver ? "bg-blue-50" : ""}`} ref={drop}>
+        {/* Optional UI hint for Archieved mode */}
+        {!isTodayView && (
+          <div className="text-center text-sm text-gray-500 italic mb-2">
+            Viewing archived events (read-only)
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-gray-500">Loading calendar...</div>
@@ -182,6 +203,7 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
+            initialDate={selectedDate}
             headerToolbar={false}
             dayHeaders={false}
             events={events}
@@ -191,19 +213,19 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
             slotLabelInterval="01:00"
             height="auto"
             contentHeight="auto"
-            selectable={true}
-            selectMirror={true}
-            editable={true}
+            selectable={isTodayView}
+            selectMirror={true} // select mirror
+            editable={isTodayView}
             droppable={false}
             slotEventOverlap={false}
-            select={handleDateSelect}
+            select={isTodayView? handleDateSelect : undefined}
             eventClick={(e) => {
               console.log("Event clicked:", e.event);
               handleEventClick(e);
               setIsDetailModalOpen(true);
             }}
-            eventDrop={handleEventDrop}
-            eventResize={handleEventResize}
+            eventDrop={isTodayView? handleEventDrop: undefined}
+            eventResize={isTodayView? handleEventResize: undefined}
             expandRows={true}
             nowIndicator={true}
             allDaySlot={false}
