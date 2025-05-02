@@ -51,7 +51,7 @@ const MonthCalendar: React.FC<MonthCalendarProps> = ({
 // Fill actual days
 for (let i = 1; i <= totalDays; i++) {
   const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-  const isCurrent = isToday(date);
+  const isCurrent = isToday(date.getDate());
   const isPicked = isSelected(date);
 
   const baseStyle =

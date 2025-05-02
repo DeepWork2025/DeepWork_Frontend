@@ -85,7 +85,7 @@ export const useCalendarEvents = () => {
   }, [dispatch]);
 
   const transformEventsForFullCalendar = useCallback(() => {
-    console.log('Raw events before transformation:', events);
+    // console.log('Raw events before transformation:', events);
     const transformedEvents = events.map(event => ({
       id: event.id.toString(),
       title: event.title || 'Untitled Event',
@@ -103,7 +103,7 @@ export const useCalendarEvents = () => {
         isStopped: false
       }
     }));
-    console.log('Transformed events:', transformedEvents);
+    // console.log('Transformed events:', transformedEvents);
     return transformedEvents;
   }, [events]);
 

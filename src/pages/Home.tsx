@@ -14,17 +14,17 @@ const Home: React.FC = () => {
 
       {/* 主体布局区域 */}
       <div className="flex flex-1 overflow-hidden">
-        {/* 左侧边栏 */}
+        {/* LeftSideBar */}
 
         <LeftSideBar
-        selectedDate={selectedDate}
-        onDateClick={setSelectedDate}
+          selectedDate={selectedDate}
+          onDateClick={() => setSelectedDate(new Date())} //TODO: fix the hack {setSelectedDate} 
         />
 
         {/* Calendar */}
         <CalendarContainer
-        selectedDate={selectedDate}
-        onDateChange={setSelectedDate}
+          selectedDate={selectedDate}
+          // onDateChange={() => setSelectedDate(new Date())}//TODO: fix the hack {setSelectedDate} 
         />
 
         {/* 右侧边栏 */}

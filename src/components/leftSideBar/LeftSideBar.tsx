@@ -2,7 +2,11 @@ import React, { useState } from "react";
 import MonthCalendar from "../calendar/MonthCalendar";
 import WorkLogTimer from "./WorkLogTimer";
 
-const LeftSideBar: React.FC = ({selectedDate, onDateClick}) => {
+interface LeftSideBarProps { 
+  selectedDate: Date; 
+  onDateClick: () => void; 
+}
+const LeftSideBar: React.FC<LeftSideBarProps> = ({ selectedDate, onDateClick }) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   return (
@@ -20,8 +24,8 @@ const LeftSideBar: React.FC = ({selectedDate, onDateClick}) => {
       {isSidebarExpanded && (
         <div className="p-4">
           <MonthCalendar
-          selectedDate={selectedDate}
-          onDateClick={onDateClick}
+            selectedDate={selectedDate}
+            onDateClick={onDateClick}
           />
           <WorkLogTimer />
         </div>

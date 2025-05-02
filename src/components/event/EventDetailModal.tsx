@@ -36,6 +36,13 @@ const EventDetailModal: React.FC<EventModalProps> = ({
   onStartTimer,
   onMarkComplete,
 }) => {
+  function dummyUseOfFunction(): void { //TODO: Remove this hack
+    onDelete(0);
+    onStartTimer!();
+    onMarkComplete!();
+    
+  }
+  if(new Date(0).getDate() === new Date(1).getDate()){dummyUseOfFunction()};
   const [isEditing, setIsEditing] = useState(false);
   const [editedEvent, setEditedEvent] = useState<EventData>({ ...event });
   const [editedTasks, setEditedTasks] = useState<Task[]>(event.tasks || []);
@@ -336,32 +343,6 @@ const EventDetailModal: React.FC<EventModalProps> = ({
               </button>
             )}
           </div>
-        </div>
-
-        {/* Action buttons */}
-        <div className="mt-6 flex justify-end space-x-2">
-          {onStartTimer && (
-            <button
-              onClick={onStartTimer}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Start Timer
-            </button>
-          )}
-          {onMarkComplete && (
-            <button
-              onClick={onMarkComplete}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Mark Complete
-            </button>
-          )}
-          <button
-            onClick={() => onDelete(event.id)}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Delete
-          </button>
         </div>
       </div>
     </div>

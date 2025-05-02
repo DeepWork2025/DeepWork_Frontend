@@ -16,7 +16,7 @@ const TaskCalendarLayout: React.FC<TaskCalendarLayoutProps> = ({
     <div className="flex gap-4 p-4">
       <TaskList tasks={tasks} setTasks={setTasks} />
       <div className="flex-grow">
-        <FullCalendarWrapper />
+        <FullCalendarWrapper selectedDate={new Date()}/>
       </div>
     </div>
   );

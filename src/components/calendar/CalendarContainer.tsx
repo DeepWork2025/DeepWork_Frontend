@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import EventForm from "../event/EventForm";
-import { useCalendarEvents } from '../../hooks/useCalendarEvents';
+import { useCalendarEvents } from "../../hooks/useCalendarEvents";
 import FullCalendarWrapper from "./FullCalendarWrapper";
 // import ToolBar from "./ToolBar";
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
@@ -9,22 +9,28 @@ interface CalendarContainerProps {
   selectedDate: Date;
 }
 
-const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => {
-  const {
-    selectedEvent,
-    isFormOpen,
-    setIsFormOpen,
-    saveEvent,
-    deleteEvent,
-  } = useCalendarEvents();
+const CalendarContainer: React.FC<CalendarContainerProps> = ({
+  selectedDate,
+}) => {
+  const { selectedEvent, isFormOpen, setIsFormOpen, saveEvent, deleteEvent } =
+    useCalendarEvents();
+
+  const leftCalendarRef = useRef<HTMLDivElement>(null);
+  const rightCalendarRef = useRef<HTMLDivElement>(null);
+
+  // Sync worklog calendar date with event calendar date
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("workLogDateChange", {
+        detail: { date: selectedDate },
+      })
+    );
+  }, [selectedDate]);
 
   // Function to open the form for a new event
   const handleAddEvent = () => {
     setIsFormOpen(true);
   };
-
-  const leftCalendarRef = useRef<HTMLDivElement>(null);
-  const rightCalendarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function syncHeight() {
@@ -54,16 +60,16 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => 
     return () => window.removeEventListener("resize", syncHeight);
   }, []);
 
-    // Synchronize scrolling between the left and right calendars
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-      if (rightCalendarRef.current && leftCalendarRef.current) {
-       if(e.target === leftCalendarRef.current){
+  // Synchronize scrolling between the left and right calendars
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    if (rightCalendarRef.current && leftCalendarRef.current) {
+      if (e.target === leftCalendarRef.current) {
         rightCalendarRef.current.scrollTop = leftCalendarRef.current.scrollTop;
-       } else if (e.target === rightCalendarRef.current){
+      } else if (e.target === rightCalendarRef.current) {
         leftCalendarRef.current.scrollTop = rightCalendarRef.current.scrollTop;
-       }
       }
-    };
+    }
+  };
 
   // Helper function with display date
   const formatHeaderDate = (date: Date) => {
@@ -74,7 +80,9 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => 
       date.getFullYear() === today.getFullYear();
 
     const day = date.getDate().toString().padStart(2, "0");
-    const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
+    const month = date
+      .toLocaleString("en-US", { month: "short" })
+      .toUpperCase();
 
     return `${isToday ? "Today " : ""}${day} ${month}`;
   };
@@ -84,9 +92,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => 
       <div className="flex justify-between items-center  bg-white shadow w-full">
         {/* Header section with full row.*/}
         <header className="p-4 bg-white">
-          <h1 className="text-2xl">
-            {formatHeaderDate(selectedDate)}
-          </h1>
+          <h1 className="text-2xl">{formatHeaderDate(selectedDate)}</h1>
         </header>
         <button
           onClick={handleAddEvent}
@@ -99,23 +105,26 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => 
       {/* Tool Bar
       <ToolBar leftCalendarRef={leftCalendarRef} rightCalendarRef={rightCalendarRef} /> */}
 
-    {/* Calendars Section */}
-    <div className="flex w-full flex-1 overflow-hidden">
+      {/* Calendars Section */}
+      <div className="flex w-full flex-1 overflow-hidden">
         {/* Left: Day Calendar */}
-        <div ref={leftCalendarRef}
-        className="w-1/2 bg-gray-100 overflow-auto"
-        onScroll={handleScroll}
+        <div
+          ref={leftCalendarRef}
+          className="w-1/2 bg-gray-100 overflow-auto"
+          onScroll={handleScroll}
         >
           <FullCalendarWrapper
-          selectedDate={selectedDate}
-          key={selectedDate.toISOString()} // force re-render on date change
+            selectedDate={selectedDate}
+            key={selectedDate.toISOString()} // force re-render on date change
           />
         </div>
 
         {/* Right: WorkLog Calendar */}
-        <div ref={rightCalendarRef}
-        className="w-1/2 bg-gray-100 overflow-auto"
-        onScroll={handleScroll}>
+        <div
+          ref={rightCalendarRef}
+          className="w-1/2 bg-gray-100 overflow-auto"
+          onScroll={handleScroll}
+        >
           <WorkLogCalendar />
         </div>
       </div>
@@ -127,7 +136,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({selectedDate}) => 
             event={selectedEvent || {}}
             onSave={saveEvent}
             onDelete={deleteEvent}
-            onClose={()=>setIsFormOpen(false)} // Close the form modal
+            onClose={() => setIsFormOpen(false)} // Close the form modal
           />
         </div>
       )}

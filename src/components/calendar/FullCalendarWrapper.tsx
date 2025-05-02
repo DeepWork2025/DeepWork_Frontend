@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
+import {  EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
 import { useCalendarEvents } from "../../hooks/useCalendarEvents";
 import EventDetailModal from "../event/EventDetailModal";
 import { CustomEventBlock } from "../event/CustomEventBlock";
@@ -45,26 +45,29 @@ const isToday = (date: Date) => {
 
 const isTodayView = isToday(selectedDate);
 
-  const {
-    events: defaultEvents,
-    handleEventClick: defaultHandleEventClick,
-    handleDateSelect,
-    deleteEvent,
-    handleEventDrop: defaultHandleEventDrop,
-    handleEventResize,
-    selectedEvent,
-    loading,
-    saveEvent,
-  } = useCalendarEvents();
+const {
+  events: defaultEvents,
+  handleEventClick: defaultHandleEventClick,
+  handleDateSelect,
+  deleteEvent,
+  handleEventDrop: defaultHandleEventDrop,
+  handleEventResize,
+  selectedEvent,
+  loading,
+  saveEvent,
+} = useCalendarEvents();
 
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+const debugInfo = useCalendarEvents();
+console.log(debugInfo);
+
+const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Use custom events if provided, otherwise use default events
-  const events = customEvents || defaultEvents;
-  const handleEventDrop = onEventDrop || defaultHandleEventDrop;
-  const handleEventClick = onEventClick || defaultHandleEventClick;
+const calendarEntries = customEvents || defaultEvents;
+const handleEventDrop = onEventDrop || defaultHandleEventDrop;
+const handleEventClick = onEventClick || defaultHandleEventClick;
 
-  const [{ isOver }, drop] = useDrop(() => ({
+const [{ isOver }, drop] = useDrop(() => ({
     accept: "TASK",
     drop: (item: DraggedTask, monitor) => {
       if (!monitor.didDrop()) {
@@ -96,6 +99,7 @@ const isTodayView = isToday(selectedDate);
 
             // Check if we're dropping near the end of an existing event
             // to create a continuous schedule
+            const events = calendarEntries || []; // TODO: fix hack
             const existingEvents = events.filter((evt) => {
               if (!evt.end) return false;
 
@@ -172,19 +176,32 @@ const isTodayView = isToday(selectedDate);
     }),
   }));
 
-  useEffect(() => {
-    console.log("Current events in FullCalendar:", events);
-    events.forEach((event) => {
-      console.log("Event details:", {
-        id: event.id,
-        title: event.title,
-        start: event.start,
-        end: event.end,
-        backgroundColor: event.backgroundColor,
-        extendedProps: event.extendedProps,
-      });
+useEffect(() => {
+    // console.log("Current events in FullCalendar:", events);
+    console.log("new entry added to calendar");
+ calendarEntries.filter((entry) => {
+   if (entry.start instanceof Date) {
+     return entry.start.getTime() > new Date().setHours(0, 0, 0, 0);
+   } else {
+     // Handle the case where entry.start is a string
+     // You may need to parse the string into a Date object
+     const startDate = new Date("" + entry.start);
+     return startDate.getTime() > new Date().setHours(0, 0, 0, 0);
+   }
+ });
+    calendarEntries.forEach((entry) => {
+
+      console.log("--",entry.title);
+      // console.log("Event details:", {
+      //   id: event.id,
+      //   title: event.title,
+      //   start: event.start,
+      //   end: event.end,
+      //   backgroundColor: event.backgroundColor,
+      //   extendedProps: event.extendedProps,
+      // });
     });
-  }, [events]);
+  }, [calendarEntries]);
 
   return (
     <div className="h-full min-h-[600px]">
@@ -206,7 +223,7 @@ const isTodayView = isToday(selectedDate);
             initialDate={selectedDate}
             headerToolbar={false}
             dayHeaders={false}
-            events={events}
+            events={calendarEntries}
             slotMinTime="00:00:00"
             slotMaxTime="24:00:00"
             slotDuration="00:15:00"
@@ -230,7 +247,7 @@ const isTodayView = isToday(selectedDate);
             nowIndicator={true}
             allDaySlot={false}
             eventContent={(arg) => {
-              console.log("Rendering event:", arg.event);
+              // console.log("Rendering event:", arg.event);
               return (
                 <CustomEventBlock event={arg.event} timeText={arg.timeText} />
               );
