@@ -1,9 +1,16 @@
-import React from 'react'
-import { useTimer } from '../../hooks/useTimer';
-import { WorkLogData } from '../../types/workLog.type';
+import React from "react";
+import { useTimer } from "../../hooks/useTimer";
+import { WorkLogData } from "../../types/workLog.type";
 
 const WorkLogTimer: React.FC = () => {
-  const { elapsed, startTimer, stopTimer, isRunning, totalWorkTime, resetTotalTime } = useTimer();
+  const {
+    elapsed,
+    startTimer,
+    stopTimer,
+    isRunning,
+    totalWorkTime,
+    resetTotalTime,
+  } = useTimer();
 
   // Handle Start/Stop Button Click
   const handleStartStopClick = () => {
@@ -17,8 +24,8 @@ const WorkLogTimer: React.FC = () => {
         start: new Date().toISOString(),
         end: "", // Will be set when stopping
         extendedProps: {
-          type: 'deep',
-          inProgress: true
+          type: "deep",
+          inProgress: true,
         },
       };
       startTimer(newLog); // Start timer with new log
@@ -48,12 +55,14 @@ const WorkLogTimer: React.FC = () => {
       {/* Total Work Time Tracker */}
       <div className="bg-gray-100 p-3 rounded-md mb-4 text-center">
         <h2 className="text-lg font-semibold">Total Work Time</h2>
-        <p className="text-xl font-bold">{formatTotalWorkTime(totalWorkTime)}</p>
+        <p className="text-xl font-bold">
+          {formatTotalWorkTime(totalWorkTime)}
+        </p>
         <button
           onClick={resetTotalTime}
           className="mt-2 px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
         >
-          Reset Total Time
+          Reset Total Time Today
         </button>
       </div>
 
@@ -69,13 +78,15 @@ const WorkLogTimer: React.FC = () => {
       <div className="mt-4 text-center">
         <button
           onClick={handleStartStopClick}
-          className={`p-2 rounded ${isRunning ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+          className={`p-2 rounded ${
+            isRunning ? "bg-red-500" : "bg-blue-500"
+          } text-white`}
         >
-          {isRunning ? 'Stop Timer' : 'Start Timer'}
+          {isRunning ? "Stop Timer" : "Start Timer"}
         </button>
       </div>
     </div>
   );
-}
+};
 
-export default WorkLogTimer
+export default WorkLogTimer;

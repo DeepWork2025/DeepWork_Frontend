@@ -3,13 +3,14 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
+import {  EventClickArg, EventDropArg, EventInput } from "@fullcalendar/core";
 import { useCalendarEvents } from "../../hooks/useCalendarEvents";
 import EventDetailModal from "../event/EventDetailModal";
 import { CustomEventBlock } from "../event/CustomEventBlock";
 import { useDrop } from "react-dnd";
 
 interface FullCalendarWrapperProps {
+  selectedDate: Date;
   customEvents?: EventInput[];
   onEventDrop?: (info: EventDropArg) => void;
   onEventClick?: (info: EventClickArg) => void;
@@ -26,30 +27,47 @@ interface DraggedTask {
 }
 
 const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
+  selectedDate,
   customEvents,
   onEventDrop,
   onEventClick,
 }) => {
-  const {
-    events: defaultEvents,
-    handleEventClick: defaultHandleEventClick,
-    handleDateSelect,
-    deleteEvent,
-    handleEventDrop: defaultHandleEventDrop,
-    handleEventResize,
-    selectedEvent,
-    loading,
-    saveEvent,
-  } = useCalendarEvents();
 
-  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+// helper function to check if date = today
+const isToday = (date: Date) => {
+  const today = new Date();
+  return (
+    date.getDate() === today.getDate() &&
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  );
+};
+
+const isTodayView = isToday(selectedDate);
+
+const {
+  events: defaultEvents,
+  handleEventClick: defaultHandleEventClick,
+  handleDateSelect,
+  deleteEvent,
+  handleEventDrop: defaultHandleEventDrop,
+  handleEventResize,
+  selectedEvent,
+  loading,
+  saveEvent,
+} = useCalendarEvents();
+
+const debugInfo = useCalendarEvents();
+console.log(debugInfo);
+
+const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Use custom events if provided, otherwise use default events
-  const events = customEvents || defaultEvents;
-  const handleEventDrop = onEventDrop || defaultHandleEventDrop;
-  const handleEventClick = onEventClick || defaultHandleEventClick;
+const calendarEntries = customEvents || defaultEvents;
+const handleEventDrop = onEventDrop || defaultHandleEventDrop;
+const handleEventClick = onEventClick || defaultHandleEventClick;
 
-  const [{ isOver }, drop] = useDrop(() => ({
+const [{ isOver }, drop] = useDrop(() => ({
     accept: "TASK",
     drop: (item: DraggedTask, monitor) => {
       if (!monitor.didDrop()) {
@@ -81,6 +99,7 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
 
             // Check if we're dropping near the end of an existing event
             // to create a continuous schedule
+            const events = calendarEntries || []; // TODO: fix hack
             const existingEvents = events.filter((evt) => {
               if (!evt.end) return false;
 
@@ -157,23 +176,42 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
     }),
   }));
 
-  useEffect(() => {
-    console.log("Current events in FullCalendar:", events);
-    events.forEach((event) => {
-      console.log("Event details:", {
-        id: event.id,
-        title: event.title,
-        start: event.start,
-        end: event.end,
-        backgroundColor: event.backgroundColor,
-        extendedProps: event.extendedProps,
-      });
+useEffect(() => {
+    // console.log("Current events in FullCalendar:", events);
+    console.log("new entry added to calendar");
+ calendarEntries.filter((entry) => {
+   if (entry.start instanceof Date) {
+     return entry.start.getTime() > new Date().setHours(0, 0, 0, 0);
+   } else {
+     // Handle the case where entry.start is a string
+     // You may need to parse the string into a Date object
+     const startDate = new Date("" + entry.start);
+     return startDate.getTime() > new Date().setHours(0, 0, 0, 0);
+   }
+ });
+    calendarEntries.forEach((entry) => {
+
+      console.log("--",entry.title);
+      // console.log("Event details:", {
+      //   id: event.id,
+      //   title: event.title,
+      //   start: event.start,
+      //   end: event.end,
+      //   backgroundColor: event.backgroundColor,
+      //   extendedProps: event.extendedProps,
+      // });
     });
-  }, [events]);
+  }, [calendarEntries]);
 
   return (
     <div className="h-full min-h-[600px]">
       <div className={`h-full ${isOver ? "bg-blue-50" : ""}`} ref={drop}>
+        {/* Optional UI hint for Archieved mode */}
+        {!isTodayView && (
+          <div className="text-center text-sm text-gray-500 italic mb-2">
+            Viewing archived events (read-only)
+          </div>
+        )}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-gray-500">Loading calendar...</div>
@@ -182,33 +220,34 @@ const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridDay"
+            initialDate={selectedDate}
             headerToolbar={false}
             dayHeaders={false}
-            events={events}
+            events={calendarEntries}
             slotMinTime="00:00:00"
             slotMaxTime="24:00:00"
             slotDuration="00:15:00"
             slotLabelInterval="01:00"
             height="auto"
             contentHeight="auto"
-            selectable={true}
-            selectMirror={true}
-            editable={true}
+            selectable={isTodayView}
+            selectMirror={true} // select mirror
+            editable={isTodayView}
             droppable={false}
             slotEventOverlap={false}
-            select={handleDateSelect}
+            select={isTodayView? handleDateSelect : undefined}
             eventClick={(e) => {
               console.log("Event clicked:", e.event);
               handleEventClick(e);
               setIsDetailModalOpen(true);
             }}
-            eventDrop={handleEventDrop}
-            eventResize={handleEventResize}
+            eventDrop={isTodayView? handleEventDrop: undefined}
+            eventResize={isTodayView? handleEventResize: undefined}
             expandRows={true}
             nowIndicator={true}
             allDaySlot={false}
             eventContent={(arg) => {
-              console.log("Rendering event:", arg.event);
+              // console.log("Rendering event:", arg.event);
               return (
                 <CustomEventBlock event={arg.event} timeText={arg.timeText} />
               );

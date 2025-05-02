@@ -204,7 +204,6 @@ export default function TaskList({ tasks, setTasks }: TaskListProps) {
     setNewTask,
     newSubtask,
     setNewSubtask,
-    activeTaskIndex,
     setActiveTaskIndex
   );
 

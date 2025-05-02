@@ -15,10 +15,10 @@ export const useTimer = () => {
     if (!activeLog?.extendedProps.inProgress || activeLog?.extendedProps.isPaused) return;
     
     const startTime = new Date(activeLog.start).getTime();
-    
-    const interval = setInterval(() => {
+    function updateElapsed() {
       setElapsed(Date.now() - startTime);
-    }, 1000);
+    }
+    const interval = setInterval(updateElapsed, 1000);
     
     return () => clearInterval(interval);
   }, [activeLog, pausedAt]);

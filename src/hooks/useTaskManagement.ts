@@ -8,7 +8,6 @@ export const useTaskManagement = (
   setNewTask: Dispatch<SetStateAction<string>>,
   newSubtask: string,
   setNewSubtask: Dispatch<SetStateAction<string>>,
-  activeTaskIndex: number | null,
   setActiveTaskIndex: Dispatch<SetStateAction<number | null>>
 ) => {
   const generateId = () => Math.random().toString(36).substring(2, 9);

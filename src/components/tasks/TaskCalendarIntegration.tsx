@@ -90,6 +90,7 @@ const TaskCalendarIntegration: React.FC = () => {
           <div className="p-4">
             {/* Custom props to pass to your calendar wrapper */}
             <FullCalendarWrapper
+              selectedDate={new Date()} //TODO: insert to satisfy syntax
               customEvents={getCalendarEvents()}
               onEventDrop={handleEventDrop}
               onEventClick={handleEventClick}
