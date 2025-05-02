@@ -4,7 +4,7 @@ import WorkLogTimer from "./WorkLogTimer";
 
 interface LeftSideBarProps { 
   selectedDate: Date; 
-  onDateClick: () => void; 
+  onDateClick: (date: Date) => void; 
 }
 const LeftSideBar: React.FC<LeftSideBarProps> = ({ selectedDate, onDateClick }) => {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);

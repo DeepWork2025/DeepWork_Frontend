@@ -125,7 +125,8 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
           className="w-1/2 bg-gray-100 overflow-auto"
           onScroll={handleScroll}
         >
-          <WorkLogCalendar />
+          <WorkLogCalendar
+          selectedDate={selectedDate} />
         </div>
       </div>
 
