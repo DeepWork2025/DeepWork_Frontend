@@ -8,30 +8,28 @@ import * as workLogService from "../../api/workLogService";
 import { WorkLogData } from "../../types/workLog.type";
 import { WorkLogDetailModal } from "./WorkLogDetailModal";
 
-// Add styles for the active work log
-const styles = `
-  .fc-event {
-    transition: height 0.5s ease-in-out;
-  }
-  
-  .fc-event.active-work-log {
-    animation: pulse 2s infinite;
-  }
-  
-  @keyframes pulse {
-    0% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-    100% {
-      opacity: 1;
-    }
-  }
-`;
+interface WorkLogCalendarProps {
+  selectedDate: Date;
+  // customEvents?: EventInput[];
+  // onEventDrop?: (info: EventDropArg) => void;
+  // onEventClick?: (info: EventClickArg) => void;
+}
 
-const WorkLogCalendar: React.FC = () => {
+const WorkLogCalendar: React.FC<WorkLogCalendarProps> = ({
+  selectedDate
+}) => {
+    // helper function to check if date = today
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const isTodayView = isToday(selectedDate);
+
   const [date, setDate] = useState<Date>(new Date());
   const [workLogs, setWorkLogs] = useState<WorkLogData[]>([]);
   const [selectedLog, setSelectedLog] = useState<WorkLogData | null>(null);
@@ -175,17 +173,21 @@ const WorkLogCalendar: React.FC = () => {
 
   return (
     <div className="h-full min-h-[600px]">
-      <style>{styles}</style>
+      {/* <style>{styles}</style> */}
       <div className="h-full">
         <FullCalendar
           plugins={[timeGridPlugin, dayGridPlugin, interactionPlugin]}
           initialView="timeGridDay"
           headerToolbar={false}
           dayHeaders={false}
-          selectable={true}
+          selectable={isTodayView}
+          select={isTodayView?handleSelectTimeSlot:undefined}
+          initialDate={date} //to update
+          eventClick={isTodayView?handleEventClick:undefined}
+          dateClick={isTodayView?handleDateClick:undefined}
+          nowIndicator={isTodayView?true:false}
           selectMirror={true}
           dayMaxEvents={true}
-          initialDate={date}
           events={calendarEvents}
           slotMinTime="00:00:00"
           slotMaxTime="24:00:00"
@@ -193,12 +195,8 @@ const WorkLogCalendar: React.FC = () => {
           slotLabelInterval="01:00"
           height="auto"
           contentHeight="auto"
-          eventClick={handleEventClick}
-          dateClick={handleDateClick}
-          select={handleSelectTimeSlot}
           expandRows={true}
           allDaySlot={false}
-          nowIndicator={true}
           viewDidMount={(view) => {
             // Ensure the time grid has a minimum height
             const timeGrid = view.el.querySelector(

@@ -230,12 +230,12 @@ useEffect(() => {
             slotLabelInterval="01:00"
             height="auto"
             contentHeight="auto"
-            selectable={isTodayView}
+            selectable={isTodayView} // 确认是否今天，是：可以更改；否：不能更改
             selectMirror={true} // select mirror
             editable={isTodayView}
             droppable={false}
             slotEventOverlap={false}
-            select={isTodayView? handleDateSelect : undefined}
+            select={isTodayView? handleDateSelect : undefined} // 确认是否今天，是：可以更改；否：不能更改
             eventClick={(e) => {
               console.log("Event clicked:", e.event);
               handleEventClick(e);

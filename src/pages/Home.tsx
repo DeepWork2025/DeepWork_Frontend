@@ -18,13 +18,12 @@ const Home: React.FC = () => {
 
         <LeftSideBar
           selectedDate={selectedDate}
-          onDateClick={() => setSelectedDate(new Date())} //TODO: fix the hack {setSelectedDate} 
+          onDateClick={(date) => setSelectedDate(date)}
         />
 
         {/* Calendar */}
         <CalendarContainer
           selectedDate={selectedDate}
-          // onDateChange={() => setSelectedDate(new Date())}//TODO: fix the hack {setSelectedDate} 
         />
 
         {/* 右侧边栏 */}
