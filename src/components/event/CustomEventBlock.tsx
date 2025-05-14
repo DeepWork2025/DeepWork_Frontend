@@ -7,11 +7,13 @@ import * as workLogService from "../../api/workLogService";
 interface CustomEventBlockProps {
   event: EventContentArg["event"];
   timeText: string;
+  readOnly?: boolean
 }
 
 export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
   event,
   timeText,
+  readOnly
 }) => {
   const {
     activeLog,
@@ -197,12 +199,12 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
 
         {/* 操作按钮区域 */}
         <div className="flex gap-1 ml-2 shrink-0">
-          {!isStarted && !isStopped && (
+          {!readOnly && !isStarted && !isStopped && (
             <button onClick={handleStart} className="p-1.5 rounded hover:bg-white/20" title="Start">
               ▶️
             </button>
           )}
-          {isStarted && !isStopped && (
+          {!readOnly && isStarted && !isStopped && (
             <>
               <button onClick={handlePause} className="p-1.5 rounded hover:bg-white/20" title={isPaused ? "Resume" : "Pause"}>
                 {isPaused ? "▶️" : "⏸"}
@@ -212,7 +214,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
               </button>
             </>
           )}
-          {isStopped && (
+          {!readOnly && isStopped && (
             <button className="p-1.5 rounded hover:bg-white/20" title="Completed">
               ✅
             </button>

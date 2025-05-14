@@ -1,5 +1,5 @@
 import React, { useState, Dispatch, SetStateAction } from "react";
-import FullCalendarWrapper from "../calendar/FullCalendarWrapper";
+import EventCalendar from "../calendar/EventCalendar";
 import TaskList from "./TaskList";
 import {
   convertTasksToCalendarEvents,
@@ -89,7 +89,7 @@ const TaskCalendarIntegration: React.FC = () => {
         ) : (
           <div className="p-4">
             {/* Custom props to pass to your calendar wrapper */}
-            <FullCalendarWrapper
+            <EventCalendar
               selectedDate={new Date()} //TODO: insert to satisfy syntax
               customEvents={getCalendarEvents()}
               onEventDrop={handleEventDrop}

@@ -9,7 +9,7 @@ import EventDetailModal from "../event/EventDetailModal";
 import { CustomEventBlock } from "../event/CustomEventBlock";
 import { useDrop } from "react-dnd";
 
-interface FullCalendarWrapperProps {
+interface EventCalendarProps {
   selectedDate: Date;
   customEvents?: EventInput[];
   onEventDrop?: (info: EventDropArg) => void;
@@ -26,7 +26,7 @@ interface DraggedTask {
   };
 }
 
-const FullCalendarWrapper: React.FC<FullCalendarWrapperProps> = ({
+const EventCalendar: React.FC<EventCalendarProps> = ({
   selectedDate,
   customEvents,
   onEventDrop,
@@ -151,12 +151,6 @@ const [{ isOver }, drop] = useDrop(() => ({
               },
             };
 
-            console.log("Creating new event:", {
-              start: dropDate.toLocaleTimeString(),
-              end: endDate.toLocaleTimeString(),
-              title: item.title,
-            });
-
             // Save the event
             saveEvent({
               id: Number(newEvent.id),
@@ -177,7 +171,6 @@ const [{ isOver }, drop] = useDrop(() => ({
   }));
 
 useEffect(() => {
-    // console.log("Current events in FullCalendar:", events);
     console.log("new entry added to calendar");
  calendarEntries.filter((entry) => {
    if (entry.start instanceof Date) {
@@ -192,26 +185,12 @@ useEffect(() => {
     calendarEntries.forEach((entry) => {
 
       console.log("--",entry.title);
-      // console.log("Event details:", {
-      //   id: event.id,
-      //   title: event.title,
-      //   start: event.start,
-      //   end: event.end,
-      //   backgroundColor: event.backgroundColor,
-      //   extendedProps: event.extendedProps,
-      // });
     });
   }, [calendarEntries]);
 
   return (
     <div className="h-full min-h-[600px]">
       <div className={`h-full ${isOver ? "bg-blue-50" : ""}`} ref={drop}>
-        {/* Optional UI hint for Archieved mode */}
-        {!isTodayView && (
-          <div className="text-center text-sm text-gray-500 italic mb-2">
-            Viewing archived events (read-only)
-          </div>
-        )}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-gray-500">Loading calendar...</div>
@@ -249,7 +228,8 @@ useEffect(() => {
             eventContent={(arg) => {
               // console.log("Rendering event:", arg.event);
               return (
-                <CustomEventBlock event={arg.event} timeText={arg.timeText} />
+                <CustomEventBlock event={arg.event} timeText={arg.timeText}
+                readOnly={isTodayView}/>
               );
             }}
             viewDidMount={(view) => {
@@ -276,4 +256,4 @@ useEffect(() => {
   );
 };
 
-export default FullCalendarWrapper;
+export default EventCalendar;

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import EventForm from "../event/EventForm";
 import { useCalendarEvents } from "../../hooks/useCalendarEvents";
-import FullCalendarWrapper from "./FullCalendarWrapper";
+import EventCalendar from "./EventCalendar";
 // import ToolBar from "./ToolBar";
 import WorkLogCalendar from "../workLog/WorkLogCalendar";
 
@@ -113,7 +113,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
           className="w-1/2 bg-gray-100 overflow-auto"
           onScroll={handleScroll}
         >
-          <FullCalendarWrapper
+          <EventCalendar
             selectedDate={selectedDate}
             key={selectedDate.toISOString()} // force re-render on date change
           />

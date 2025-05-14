@@ -1,6 +1,6 @@
 import React from "react";
 import TaskList from "../tasks/TaskList";
-import FullCalendarWrapper from "../calendar/FullCalendarWrapper";
+import EventCalendar from "../calendar/EventCalendar";
 import { Task } from "../../types/TaskTypes";
 
 interface TaskCalendarLayoutProps {
@@ -16,7 +16,7 @@ const TaskCalendarLayout: React.FC<TaskCalendarLayoutProps> = ({
     <div className="flex gap-4 p-4">
       <TaskList tasks={tasks} setTasks={setTasks} />
       <div className="flex-grow">
-        <FullCalendarWrapper selectedDate={new Date()}/>
+        <EventCalendar selectedDate={new Date()}/>
       </div>
     </div>
   );
