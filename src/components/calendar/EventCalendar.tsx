@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -48,6 +48,8 @@ const isTodayView = isToday(selectedDate);
 const {
   events: defaultEvents,
   handleEventClick: defaultHandleEventClick,
+  isFormOpen,
+  setIsFormOpen,
   handleDateSelect,
   deleteEvent,
   handleEventDrop: defaultHandleEventDrop,
@@ -59,8 +61,6 @@ const {
 
 const debugInfo = useCalendarEvents();
 console.log(debugInfo);
-
-const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // Use custom events if provided, otherwise use default events
 const calendarEntries = customEvents || defaultEvents;
@@ -171,7 +171,6 @@ const [{ isOver }, drop] = useDrop(() => ({
   }));
 
 useEffect(() => {
-    console.log("new entry added to calendar");
  calendarEntries.filter((entry) => {
    if (entry.start instanceof Date) {
      return entry.start.getTime() > new Date().setHours(0, 0, 0, 0);
@@ -182,10 +181,6 @@ useEffect(() => {
      return startDate.getTime() > new Date().setHours(0, 0, 0, 0);
    }
  });
-    calendarEntries.forEach((entry) => {
-
-      console.log("--",entry.title);
-    });
   }, [calendarEntries]);
 
   return (
@@ -216,9 +211,7 @@ useEffect(() => {
             slotEventOverlap={false}
             select={isTodayView? handleDateSelect : undefined} // 确认是否今天，是：可以更改；否：不能更改
             eventClick={(e) => {
-              console.log("Event clicked:", e.event);
               handleEventClick(e);
-              setIsDetailModalOpen(true);
             }}
             eventDrop={isTodayView? handleEventDrop: undefined}
             eventResize={isTodayView? handleEventResize: undefined}
@@ -229,7 +222,7 @@ useEffect(() => {
               // console.log("Rendering event:", arg.event);
               return (
                 <CustomEventBlock event={arg.event} timeText={arg.timeText}
-                readOnly={isTodayView}/>
+                readOnly={!isTodayView}/>
               );
             }}
             viewDidMount={(view) => {
@@ -244,10 +237,10 @@ useEffect(() => {
           />
         )}
       </div>
-      {isDetailModalOpen && selectedEvent && (
+      {isFormOpen && selectedEvent && (
         <EventDetailModal
           event={selectedEvent}
-          onClose={() => setIsDetailModalOpen(false)}
+          onClose={() => setIsFormOpen(false)}
           onDelete={deleteEvent}
           onUpdate={saveEvent}
         />

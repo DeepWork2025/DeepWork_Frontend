@@ -17,7 +17,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
 }) => {
   const {
     activeLog,
-    elapsed,
+    // elapsed,
     startTimer,
     stopTimer,
     isRunning,
@@ -174,7 +174,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
             <div className="text-xs text-white/80 truncate">
-              {isActive ? `Duration: ${formatElapsedTime(elapsed)}` : `Duration: ${calculateDuration()}`}
+              {`Duration: ${calculateDuration()}`}
             </div>
           </div>
         ) : (
@@ -187,7 +187,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
             <div className="text-xs text-white/80 truncate">
-              {isActive ? `Duration: ${formatElapsedTime(elapsed)}` : `Duration: ${calculateDuration()}`}
+              { `Duration: ${calculateDuration()}`}
             </div>
             {label && (
               <span className="text-xs inline-block px-2 py-0.5 mt-1 bg-white/20 rounded-full text-white">

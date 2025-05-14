@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MonthCalendar from "../calendar/MonthCalendar";
-import WorkLogTimer from "./WorkLogTimer";
+import WorkLogSummary from "./WorkLogSummary";
 
 interface LeftSideBarProps { 
   selectedDate: Date; 
@@ -27,7 +27,9 @@ const LeftSideBar: React.FC<LeftSideBarProps> = ({ selectedDate, onDateClick }) 
             selectedDate={selectedDate}
             onDateClick={onDateClick}
           />
-          <WorkLogTimer />
+          <WorkLogSummary
+          selectedDate={selectedDate}
+          />
         </div>
       )}
     </div>

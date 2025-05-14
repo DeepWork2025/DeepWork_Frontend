@@ -36,13 +36,6 @@ const EventDetailModal: React.FC<EventModalProps> = ({
   onStartTimer,
   onMarkComplete,
 }) => {
-  function dummyUseOfFunction(): void { //TODO: Remove this hack
-    onDelete(0);
-    onStartTimer!();
-    onMarkComplete!();
-    
-  }
-  if(new Date(0).getDate() === new Date(1).getDate()){dummyUseOfFunction()};
   const [isEditing, setIsEditing] = useState(false);
   const [editedEvent, setEditedEvent] = useState<EventData>({ ...event });
   const [editedTasks, setEditedTasks] = useState<Task[]>(event.tasks || []);
@@ -254,6 +247,15 @@ const EventDetailModal: React.FC<EventModalProps> = ({
         <div className="mt-6">
           <h4 className="text-lg font-semibold mb-2">Tasks</h4>
           <div className="space-y-2">
+            {!isEditing && onStartTimer && (
+              <button
+                onClick={onStartTimer}
+                className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
+              >
+                ▶️ Start Timer
+              </button>
+            )}
+
             {isEditing
               ? editedTasks.map((task) => (
                   <div key={task.id} className="flex items-center space-x-2">
@@ -342,6 +344,23 @@ const EventDetailModal: React.FC<EventModalProps> = ({
                 <span>Add Task</span>
               </button>
             )}
+            {!isEditing && (
+              <button
+                onClick={() => onDelete(event.id)}
+                className="mt-4 text-red-500 hover:text-red-700 text-sm"
+              >
+                Delete Event
+              </button>
+            )}
+            {!isEditing && onMarkComplete && (
+              <button
+                onClick={onMarkComplete}
+                className="mt-2 text-green-600 hover:text-green-800 text-sm"
+              >
+                ✅ Mark Complete
+              </button>
+            )}
+
           </div>
         </div>
       </div>
