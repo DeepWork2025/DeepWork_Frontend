@@ -1,50 +1,91 @@
-# React + TypeScript + Vite
+# 🗓️ Deeeep: A Calendar-View Producticity Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application designed to help you visualize and optimize your **deep work** sessions.  
+Track your focused work time with real-time timers, and manage your sessions using two powerful productivity views:
 
-Currently, two official plugins are available:
+- **🧠 Work Log Calendar** – displays detailed logs grouped by hour with a daily timeline for reflection and analysis
+- **⏰ Time Calendar** – an interactive scheduling interface to plan and edit events in your day
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Stay focused. Stay intentional. Build better habits for productive work.
 
-## Expanding the ESLint configuration
+## 🔧 Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+- **React + TypeScript**
+- **FullCalendar.js** for scheduling and day view UI
+- **Tailwind CSS** for styling
+- **LocalStorage**
+- **Custom React Hooks**
 
-- Configure the top-level `parserOptions` property like this:
+---
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## ✨ Features
+
+### 🕒 Work Log Timer
+- Start/stop a timer to track your current work session
+- Real-time elapsed time display
+- Automatic log saving with `start` and `end` timestamps
+- Summary of total work time for each day
+
+### 📅 Interactive Calendar
+- View, create, edit, and delete work events
+- Drag-and-drop and resize events in the calendar
+- Timeline grouping by hour
+- Form modal to edit event details
+
+### 📂 LocalStorage Persistence
+- Events and logs are saved locally
+- Mocked API services abstract localStorage access (`eventService.ts`, `workLogService.ts`)
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
+
+```
+git clone https://github.com/your-username/work-log-tracker.git
+cd work-log-tracker
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
-
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+### 2. Install Dependencies
 ```
+npm install
+```
+
+### 3. Run the App
+```
+npm run dev
+```
+The app will be available at http://localhost:5173/ (Vite default).
+
+## 📁 Project Structure
+```
+src/
+├── components/
+│   ├── calendar/
+│   ├── event/
+│   └── timer/
+├── hooks/
+│   ├── useCalendarEvents.ts
+│   ├── useTimer.ts
+│   └── useWorkLog.ts
+├── api/
+│   ├── eventService.ts
+│   └── workLogService.ts
+├── types/
+│   └── workLog.type.ts
+🧠 Future Improvements
+Backend integration (Node.js + DB)
+
+User authentication
+
+Export logs as CSV/PDF
+
+Tagging or categorization for work sessions
+
+Analytics dashboard
+```
+
+## 🙌 Contributing
+Contributions are welcome!
+Please open an issue or submit a pull request.
