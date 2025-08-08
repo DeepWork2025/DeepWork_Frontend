@@ -4,11 +4,18 @@ import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { EventData } from '../types/event.types';
 import { RootState, AppDispatch } from '../store';
-import * as actions from '../store/events/actions';
+import { actions } from '../store/event/eventSlice';
+import { 
+  selectEvents, 
+  selectSelectedEvent,
+  selectEventsByDate 
+} from '../store/event/selectors';
 
 export const useCalendarEvents = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { events, selectedEvent, loading, error } = useSelector((state: RootState) => state.events);
+  const events = useSelector(selectEvents);
+  const selectedEvent = useSelector(selectSelectedEvent);
+  const { loading, error } = useSelector((state: RootState) => state.events);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {

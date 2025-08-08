@@ -3,7 +3,7 @@ import { WorkLogData } from '../types/workLog.type';
 import * as workLogService from '../api/workLogService';
 
 export const useTimer = () => {
-  const [activeLog, setActiveLog] = useState<WorkLogData | null>(() => 
+  const [activeLog, setActiveLog] = useState<WorkLogData | null>(() =>
     workLogService.getActiveLog()
   );
   const [elapsed, setElapsed] = useState(0);
