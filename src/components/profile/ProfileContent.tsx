@@ -38,7 +38,7 @@ const ProfileContent: React.FC = () => {
   };
 
   const handleNavigateHome = () => {
-    navigate("/home");
+    navigate("/");
   };
 
   return (
