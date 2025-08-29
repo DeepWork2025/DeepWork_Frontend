@@ -29,7 +29,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
   const [isStopped, setIsStopped] = useState(false);
 
   useEffect(() => {
-    if (activeLog && activeLog.id === event.id) {
+    if (activeLog && activeLog.id === String(event.id)) {
       setIsStarted(true);
       setIsPaused(activeLog.extendedProps.isPaused || false);
       setIsStopped(false);
@@ -66,7 +66,7 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
 
   const handlePause = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (activeLog && activeLog.id === event.id) {
+    if (activeLog && activeLog.id === String(event.id)) {
       if (isPaused) {
         resumeTimer();
       } else {

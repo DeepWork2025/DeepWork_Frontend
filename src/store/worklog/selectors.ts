@@ -1,6 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from '../index';
-import { WorkLogData } from '../../types/workLog.type';
 
 // 基础选择器
 export const selectWorkLogs = (state: RootState) => state.workLog.workLogs;
@@ -15,7 +14,7 @@ export const selectWorkLogsByDate = createSelector(
   (workLogs, date) => {
     const dateStr = date.toISOString().split('T')[0];
     return workLogs.filter(log => 
-      log.startTime.startsWith(dateStr)
+      log.start.startsWith(dateStr)
     );
   }
 );
@@ -25,8 +24,10 @@ export const selectWorkLogStats = createSelector(
   [selectWorkLogs],
   (workLogs) => {
     const totalTime = workLogs.reduce((total, log) => {
-      if (log.elapsed) {
-        return total + log.elapsed;
+      const start = new Date(log.start);
+      const end = new Date(log.end);
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        return total + (end.getTime() - start.getTime());
       }
       return total;
     }, 0);
@@ -34,7 +35,7 @@ export const selectWorkLogStats = createSelector(
     return {
       totalCount: workLogs.length,
       totalTime,
-      activeCount: workLogs.filter(log => log.status === 'running').length
+      activeCount: workLogs.filter(log => log.extendedProps.inProgress).length
     };
   }
 );
@@ -42,7 +43,15 @@ export const selectWorkLogStats = createSelector(
 // 根据状态筛选
 export const selectWorkLogsByStatus = createSelector(
   [selectWorkLogs, (_, status: 'running' | 'paused' | 'stopped') => status],
-  (workLogs, status) => workLogs.filter(log => log.status === status)
+  (workLogs, status) => {
+    if (status === 'running') {
+      return workLogs.filter(log => log.extendedProps.inProgress && !log.extendedProps.isPaused);
+    } else if (status === 'paused') {
+      return workLogs.filter(log => log.extendedProps.inProgress && log.extendedProps.isPaused);
+    } else {
+      return workLogs.filter(log => !log.extendedProps.inProgress);
+    }
+  }
 );
 
 // 获取今日工作日志
@@ -51,7 +60,7 @@ export const selectTodayWorkLogs = createSelector(
   (workLogs) => {
     const today = new Date().toISOString().split('T')[0];
     return workLogs.filter(log => 
-      log.startTime.startsWith(today)
+      log.start.startsWith(today)
     );
   }
 );

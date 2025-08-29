@@ -7,8 +7,7 @@ import { RootState, AppDispatch } from '../store';
 import { actions } from '../store/event/eventSlice';
 import { 
   selectEvents, 
-  selectSelectedEvent,
-  selectEventsByDate 
+  selectSelectedEvent
 } from '../store/event/selectors';
 
 export const useCalendarEvents = () => {
@@ -27,7 +26,7 @@ export const useCalendarEvents = () => {
     const endDate = selectInfo.end || new Date(startDate.getTime() + 60 * 60 * 1000); // Default to 1 hour if no end time
 
     const eventData: EventData = {
-      id: Date.now(),
+      id: Date.now().toString(),
       title: 'New Event',
       startTime: startDate.toISOString(),
       endTime: endDate.toISOString(),
@@ -42,7 +41,7 @@ export const useCalendarEvents = () => {
 
   const handleEventClick = useCallback((clickInfo: EventClickArg) => {
     const eventData: EventData = {
-      id: Number(clickInfo.event.id),
+      id: String(clickInfo.event.id),
       title: clickInfo.event.title,
       startTime: clickInfo.event.start!.toISOString(),
       endTime: clickInfo.event.end!.toISOString(),
@@ -56,7 +55,7 @@ export const useCalendarEvents = () => {
 
   const handleEventDrop = useCallback((dropInfo: EventDropArg) => {
     const eventData: EventData = {
-      id: Number(dropInfo.event.id),
+      id: String(dropInfo.event.id),
       title: dropInfo.event.title,
       startTime: dropInfo.event.start!.toISOString(),
       endTime: dropInfo.event.end!.toISOString(),
@@ -69,7 +68,7 @@ export const useCalendarEvents = () => {
 
   const handleEventResize = useCallback((resizeInfo: EventResizeDoneArg) => {
     const eventData: EventData = {
-      id: Number(resizeInfo.event.id),
+      id: String(resizeInfo.event.id),
       title: resizeInfo.event.title,
       startTime: resizeInfo.event.start!.toISOString(),
       endTime: resizeInfo.event.end!.toISOString(),
@@ -86,7 +85,7 @@ export const useCalendarEvents = () => {
     setIsFormOpen(false);
   }, [dispatch]);
 
-  const deleteEvent = useCallback((eventId: number) => {
+  const deleteEvent = useCallback((eventId: string) => {
     dispatch(actions.deleteEvent(eventId));
     setIsFormOpen(false);
   }, [dispatch]);

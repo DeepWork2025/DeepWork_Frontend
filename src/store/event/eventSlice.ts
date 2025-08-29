@@ -59,7 +59,7 @@ const saveEvent = createAsyncThunk(
 
 const deleteEvent = createAsyncThunk(
   'events/deleteEvent',
-  async (eventId: number, { dispatch }) => {
+  async (eventId: string, { dispatch }) => {
     dispatch(setLoading(true));
     try {
       const updatedEvents = eventService.deleteEvent(eventId);

@@ -1,11 +1,11 @@
 export interface Task {
-    id: number;
+    id: string;
     title: string;
     completed: boolean;
 }
 
 export interface EventData {
-    id: number;            // Unique identifier
+    id: string;            // Unique identifier
     title: string;          // Event title
     startTime: string;      // ISO 8601 format: "2025-02-25T10:00:00"
     endTime: string;        // ISO 8601 format: "2025-02-25T10:00:00"

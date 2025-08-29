@@ -1,8 +1,8 @@
 export interface WorkLogData {
     id: string;
     title: string;
-    start: Date | string;
-    end: Date | string;
+    start: string;
+    end: string;
     extendedProps: {
       type: 'deep' | 'shallow';
       category?: string;

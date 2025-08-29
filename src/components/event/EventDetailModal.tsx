@@ -22,7 +22,7 @@ const getDuration = (start: Date | null, end: Date | null) => {
 interface EventModalProps {
   event: EventData;
   onClose: () => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   onUpdate?: (updatedEvent: EventData) => void;
   onStartTimer?: () => void;
   onMarkComplete?: () => void;
@@ -73,27 +73,27 @@ const EventDetailModal: React.FC<EventModalProps> = ({
     setIsEditing(false);
   };
 
-  const handleTaskChange = (taskId: number, completed: boolean) => {
+  const handleTaskChange = (taskId: string, completed: boolean) => {
     setEditedTasks((tasks) =>
       tasks.map((task) => (task.id === taskId ? { ...task, completed } : task))
     );
   };
 
-  const handleTaskTitleChange = (taskId: number, title: string) => {
+  const handleTaskTitleChange = (taskId: string, title: string) => {
     setEditedTasks((tasks) =>
       tasks.map((task) => (task.id === taskId ? { ...task, title } : task))
     );
   };
 
   const addNewTask = () => {
-    const newId = Math.max(0, ...editedTasks.map((t) => t.id)) + 1;
+    const newId = Date.now().toString();
     setEditedTasks([
       ...editedTasks,
       { id: newId, title: "", completed: false },
     ]);
   };
 
-  const removeTask = (taskId: number) => {
+  const removeTask = (taskId: string) => {
     setEditedTasks((tasks) => tasks.filter((task) => task.id !== taskId));
   };
 

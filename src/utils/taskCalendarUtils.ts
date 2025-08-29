@@ -56,7 +56,7 @@ export const convertTasksToCalendarEvents = (
 
     // Create event for the task
     const taskEvent: EventInput = {
-      id: String(Number(task.id.replace(/\D/g, "")) || taskIndex + 1), // Convert string id to number or use index+1
+      id: task.id, // 直接使用task.id，因为现在都是string类型
       title: task.text,
       start: startTime.toISOString(),
       end: endTime.toISOString(),
@@ -85,7 +85,7 @@ export const convertTasksToCalendarEvents = (
         ); // Half the duration for subtasks
 
         const subtaskEvent: EventInput = {
-          id: String(Number(`${taskIndex + 1}${subtaskIndex + 1}`) + 1000), // Create a unique ID
+          id: subtask.id, // 直接使用subtask.id，因为现在都是string类型
           title: `${task.text}: ${subtask.text}`,
           start: subtaskStartTime.toISOString(),
           end: subtaskEndTime.toISOString(),

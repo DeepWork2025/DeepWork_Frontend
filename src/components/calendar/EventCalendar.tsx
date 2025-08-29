@@ -153,7 +153,7 @@ const [{ isOver }, drop] = useDrop(() => ({
 
             // Save the event
             saveEvent({
-              id: Number(newEvent.id),
+              id: String(newEvent.id),
               title: newEvent.title,
               startTime: newEvent.start.toISOString(),
               endTime: newEvent.end.toISOString(),

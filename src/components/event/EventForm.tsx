@@ -4,7 +4,7 @@ import { EventData } from '../../types/event.types';
 interface EventFormProps {
   event: Partial<EventData>;
   onSave: (eventData: EventData) => void;
-  onDelete: (eventId: number) => void;
+  onDelete: (eventId: string) => void;
   onClose: () => void;
 }
 
@@ -56,7 +56,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
     }
 
     const eventToSave: EventData = {
-      id: formData.id || Date.now(), // Generate new ID if not provided
+      id: formData.id || Date.now().toString(), // Generate new ID if not provided
       title: formData.title,
       startTime: formData.startTime,
       endTime: formData.endTime,

@@ -37,7 +37,7 @@ export const getEventById = (id: string): EventData | null => {
   const eventsJson = localStorage.getItem(STORAGE_KEY);
   if (eventsJson) {
     const allEvents: EventData[] = JSON.parse(eventsJson);
-    const foundEvent = allEvents.find(e => e.id === parseInt(id));
+    const foundEvent = allEvents.find(e => e.id === id);
     // Return a new object to avoid mutation
     return foundEvent ? { ...foundEvent } : null;
   }
@@ -86,7 +86,7 @@ export const saveEvents = (events: EventData[]) => {
   }
 };
 
-export const deleteEvent = (eventId: number) => {
+export const deleteEvent = (eventId: string) => {
   const events = getEvents();
   // Create new array to avoid mutation
   const updatedEvents = events.filter(event => event.id !== eventId);
@@ -136,7 +136,7 @@ export const addOrUpdateEvent = (eventData: EventDataWithStartEnd) => {
   } else {
     // Create new event with unique ID
     const newEvent: EventData = {
-      id: Date.now(),
+      id: Date.now().toString(),
       title: processedEventData.title || 'New Event',
       startTime: processedEventData.startTime || new Date().toISOString(),
       endTime: processedEventData.endTime || new Date(Date.now() + 3600000).toISOString(),

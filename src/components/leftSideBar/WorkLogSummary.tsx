@@ -1,26 +1,22 @@
 import React, {useEffect, useState} from "react";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import { calculateTodayWorkLogTime } from "../../utils/calculateWorkTime";
 import { useTimer } from "../../hooks/useTimer";
+import * as workLogService from "../../api/workLogService";
+import { WorkLogData } from "../../types/workLog.type";
 
 interface WorkLogSummaryProps {
   selectedDate: Date;
 }
 
 const WorkLogSummary: React.FC<WorkLogSummaryProps> = ({selectedDate}) => {
-  const logs = useSelector((state: RootState) => state.events.events);
+  const [logs, setLogs] = useState<WorkLogData[]>([]);
 
   const { activeLog, elapsed } = useTimer()
 
-  const [tick, setTick] = useState(0)
-
-  useEffect(()=>{
-    const interval = setInterval(()=>{
-      setTick((t)=>t+1) // update every second
-    },1000)
-    return () => clearInterval(interval)
-  },[])
+  useEffect(() => {
+    const allLogs = workLogService.getAllWorkLogs();
+    setLogs(allLogs);
+  }, []);
 
   const total = calculateTodayWorkLogTime(
     logs,
