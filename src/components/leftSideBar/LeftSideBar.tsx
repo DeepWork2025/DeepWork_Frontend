@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MonthCalendar from "../calendar/MonthCalendar";
+import MonthCalendar from "./MonthCalendar.tsx";
 import WorkLogSummary from "./WorkLogSummary";
 
 interface LeftSideBarProps { 

@@ -6,4 +6,6 @@ export interface WorkLogState {
     activeWorkLog: WorkLogData | null;
     loading: boolean;
     error: string | null;
+    startTime?: string;
+    endTime?: string;
 }

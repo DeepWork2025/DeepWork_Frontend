@@ -126,7 +126,8 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
           onScroll={handleScroll}
         >
           <WorkLogCalendar
-          selectedDate={selectedDate} />
+          selectedDate={selectedDate}
+          key={selectedDate.toISOString()} />
         </div>
       </div>
 

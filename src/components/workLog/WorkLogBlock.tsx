@@ -20,6 +20,7 @@ const WorkLogBlock: React.FC<WorkLogBlockProps> = ({ event, onClick }) => {
   };
 
    // Get event duration in minutes
+   // 手动计算worklog显示的大小
    const getDuration = () => {
     if (!startTime || !endTime || isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
       return ''; // Handle missing or invalid dates
@@ -36,6 +37,8 @@ const WorkLogBlock: React.FC<WorkLogBlockProps> = ({ event, onClick }) => {
       return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
     }
   };
+
+  
 
   // Determine background color based on event properties.
   const getBgColor = () => {

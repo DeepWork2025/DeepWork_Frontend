@@ -215,8 +215,10 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
             </>
           )}
           {!readOnly && isStopped && (
-            <button className="p-1.5 rounded hover:bg-white/20" title="Completed">
-              ✅
+            <button className="p-1.5 rounded hover:bg-white/20" title={
+              event.extendedProps.autoStopped ? "Auto Stopped" : "Finished"
+            }>
+              {event.extendedProps.autoStopped ? "⏰" : "✅"}
             </button>
           )}
         </div>
