@@ -82,10 +82,20 @@ const [{ isOver }, drop] = useDrop(() => ({
             const timeSlotHeight = timeGridRect.height / 24; // 24 hours in a day
             const hourDecimal = relativeYInTimeGrid / timeSlotHeight;
 
+            // 这里需要确保hourDecimal在合理范围内
+            if (hourDecimal < 0 || hourDecimal >= 24) {
+              return; // 如果时间超出范围，直接返回
+            }
+
             // Create date at precise drop position
             const dropDate = new Date();
             const hours = Math.floor(hourDecimal);
             const minutes = Math.round((hourDecimal % 1) * 60);
+
+            // 确保时间在合理范围内
+            if (hours < 0 || hours >= 24) {
+              return;
+            }
 
             dropDate.setHours(hours, minutes, 0, 0);
 
@@ -93,9 +103,17 @@ const [{ isOver }, drop] = useDrop(() => ({
             const roundedMinutes = Math.round(minutes / 15) * 15;
             dropDate.setMinutes(roundedMinutes);
 
-            // Default duration is 1 hour
+            // Default duration is 1 hour, but ensure minimum 30 minutes
             const endDate = new Date(dropDate);
-            endDate.setHours(endDate.getHours() + 1);
+            const minDuration = 30 * 60 * 1000; // 30分钟
+            const defaultDuration = 60 * 60 * 1000; // 1小时
+            
+            // 确保至少30分钟
+            if (defaultDuration < minDuration) {
+              endDate.setTime(dropDate.getTime() + minDuration);
+            } else {
+              endDate.setTime(dropDate.getTime() + defaultDuration);
+            }
 
             // Check if we're dropping near the end of an existing event
             // to create a continuous schedule

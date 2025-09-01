@@ -23,7 +23,19 @@ export const useCalendarEvents = () => {
 
   const handleDateSelect = useCallback((selectInfo: DateSelectArg) => {
     const startDate = selectInfo.start;
-    const endDate = selectInfo.end || new Date(startDate.getTime() + 60 * 60 * 1000); // Default to 1 hour if no end time
+    let endDate = selectInfo.end;
+    
+    // 如果没有结束时间或时间间隔小于30分钟，强制设置为30分钟
+    if (!endDate) {
+      endDate = new Date(startDate.getTime() + 30 * 60 * 1000); // 30分钟
+    } else {
+      const duration = endDate.getTime() - startDate.getTime();
+      const minDuration = 30 * 60 * 1000; // 30分钟
+      
+      if (duration < minDuration) {
+        endDate = new Date(startDate.getTime() + minDuration);
+      }
+    }
 
     const eventData: EventData = {
       id: Date.now().toString(),

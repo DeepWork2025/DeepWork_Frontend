@@ -162,8 +162,8 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
       <div className="flex justify-between items-center p-2 flex-1">
         {isShortestEvent() ? (
           // 👉 单行展示（小于15分钟）
-          <div className="flex-1 min-w-0 px-1.5">
-            <div className="text-sm font-semibold text-white truncate">
+          <div className="flex-1 min-w-0 flex items-center px-1.5">
+            <div className="text-sm font-semibold text-white leading-none m-0">
               {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
             </div>
           </div>

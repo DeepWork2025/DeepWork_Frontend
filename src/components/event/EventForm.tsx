@@ -132,8 +132,6 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
             >
               <option value="">None</option>
               <option value="deep">Deep Work</option>
-              <option value="meeting">Meeting</option>
-              <option value="personal">Personal</option>
             </select>
           </div>
 
