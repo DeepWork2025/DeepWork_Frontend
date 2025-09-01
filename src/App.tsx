@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-// import Register from "./pages/Register";
-// import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Banner from "./pages/Banner";
 import ProfilePage from "./pages/Profile";
@@ -24,10 +24,12 @@ const App: React.FC = () => {
                 <Route path="/" element={<Home />} />
                 <Route
                   path="/register"
+                  element={<Register />}
                   // element={<Register onRegister={handleRegister} />}
                 />
                 <Route
                   path="/login"
+                  element={<Login />}
                   // element={<Login onLogin={handleLogin} />}
                 />
                 {/* <Route element={<PrivateRoute />}> */}
