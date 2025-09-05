@@ -45,7 +45,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
   return (
     <div className="flex h-screen">
       {/* left */}
-      <div className="flex flex-col justify-center items-center w-1/2 bg-red-400 text-white px-10">
+      <div className="flex flex-col justify-center items-center w-1/2 px-10 text-white bg-[#7CD4FD]">
         <h1 className="text-3xl font-bold mb-4">Deep Work</h1>
         <img
           src="/images/illustration.svg"
@@ -53,7 +53,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
           className="w-64 h-64"
         />
         <p className="text-lg text-center mt-4">
-          Start for free & get <br /> attractive offers today!
+          Start for free & get <br /> to focus today!
         </p>
       </div>
 
@@ -63,31 +63,11 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
           <h2 className="text-2xl font-semibold">Get Started</h2>
           <p className="text-sm text-gray-500">
             Already have an account?{" "}
-            <Link to="/login" className="text-red-500 hover:underline">
+            <Link to="/login" className="text-[#194185] hover:underline">
               Sign In
             </Link>
           </p>
         </div>
-
-        {/* Social Media */}
-        <div className="flex space-x-4 mb-4">
-          <button className="flex items-center space-x-2 px-4 py-2 bg-white border rounded-md shadow hover:bg-gray-100">
-            <img
-              src="https://img.icons8.com/color/30/000000/google-logo.png"
-              alt="google"
-            />
-            <span>Sign Up</span>
-          </button>
-          <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white border rounded-md shadow hover:bg-blue-700">
-            <img
-              src="https://img.icons8.com/ios-filled/30/ffffff/facebook-new.png"
-              alt="facebook"
-            />
-            <span>Sign Up</span>
-          </button>
-        </div>
-
-        <div className="text-center text-gray-500 mb-4">Or</div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Username */}
@@ -157,16 +137,39 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onRegister }) => {
           </div>
 
           {/* submit */}
-          <button
-            type="submit"
-            className="w-full bg-red-400 text-white py-2 rounded-md hover:bg-red-600 transition duration-200"
-          >
-            Submit
-          </button>
+            <button
+              type="submit"
+              className="w-full text-white py-2 rounded-md transition duration-200 bg-[#7CD4FD] hover:bg-[#194185]"
+            >
+              Submit
+            </button>
+
+        
+        <div className="text-center text-gray-500 mb-4">Or</div>
+        
+            {/* Social Media */}
+            <button
+              className="flex items-center justify-center space-x-4 px-4 py-2 h-11 w-full bg-white border rounded-md shadow hover:bg-gray-100"
+            >
+              <img
+                src="https://img.icons8.com/color/30/000000/google-logo.png"
+                alt="google"
+              />
+              <span>Sign Up</span>
+            </button>
+
+        
         </form>
+
       </div>
+    
+
     </div>
   );
+
+
 };
+
+
 
 export default RegisterForm;

@@ -25,12 +25,10 @@ const App: React.FC = () => {
                 <Route
                   path="/register"
                   element={<Register />}
-                  // element={<Register onRegister={handleRegister} />}
                 />
                 <Route
                   path="/login"
                   element={<Login />}
-                  // element={<Login onLogin={handleLogin} />}
                 />
                 {/* <Route element={<PrivateRoute />}> */}
                 <Route path="/banner" element={<Banner />} />
