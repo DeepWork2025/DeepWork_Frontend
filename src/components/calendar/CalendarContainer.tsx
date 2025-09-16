@@ -96,7 +96,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
         </header>
         <button
           onClick={handleAddEvent}
-          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
+          className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 mr-4"
         >
           + Add Event
         </button>
@@ -110,7 +110,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
         {/* Left: Day Calendar */}
         <div
           ref={leftCalendarRef}
-          className="w-1/2 bg-gray-100 overflow-auto"
+          className="w-1/2 bg-white overflow-auto"
           onScroll={handleScroll}
         >
           <EventCalendar
@@ -122,7 +122,7 @@ const CalendarContainer: React.FC<CalendarContainerProps> = ({
         {/* Right: WorkLog Calendar */}
         <div
           ref={rightCalendarRef}
-          className="w-1/2 bg-gray-100 overflow-auto"
+          className="w-1/2 bg-white overflow-auto"
           onScroll={handleScroll}
         >
           <WorkLogCalendar

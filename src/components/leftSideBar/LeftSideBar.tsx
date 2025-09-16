@@ -11,13 +11,13 @@ const LeftSideBar: React.FC<LeftSideBarProps> = ({ selectedDate, onDateClick }) 
 
   return (
     <div
-      className={`bg-gray-100 h-full transition-all duration-300 ${
+      className={`bg-white h-full transition-all duration-300 ${
         isSidebarExpanded ? "w-[400px]" : "w-[80px]"
       }`}
     >
       <button
         onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
-        className="p-2 bg-gray-300 hover:bg-gray-400 transition w-full"
+        className="p-2 bg-customBlue1 hover:bg-customBlue2 transition w-full"
       >
         {isSidebarExpanded ? "⏪" : "⏩"}
       </button>
