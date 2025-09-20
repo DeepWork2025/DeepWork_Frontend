@@ -26,8 +26,8 @@ const WorkLogSummary: React.FC<WorkLogSummaryProps> = ({selectedDate}) => {
 
   return (
     <div className="px-4 py-3 border-t mt-4 text-sm text-gray-700 bg-white shadow-sm rounded">
-      <div className="font-medium text-gray-900">Total Work Time</div>
-       <div className="font-medium text-gray-900">
+      <div className="font-medium text-gray-900">Deep Timer</div>
+       <div className="font-medium text-gray-400">
         {selectedDate.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}'s Work Time
       </div>
       <div className="text-blue-600 font-semibold text-lg mt-1">
