@@ -4,11 +4,10 @@ import { EventData } from '../../types/event.types';
 interface EventFormProps {
   event: Partial<EventData>;
   onSave: (eventData: EventData) => void;
-  onDelete: (eventId: string) => void;
   onClose: () => void;
 }
 
-const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose }) => {
+const EventForm: React.FC<EventFormProps> = ({ event, onSave, onClose }) => {
   const today = new Date().toISOString().substring(0, 10); // get current date in YYYY-MM-DD
 
   const [formData, setFormData] = useState<Partial<EventData>>({
@@ -18,7 +17,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
     endTime: event.endTime || `${today}T10:00:00`,
     description: event.description || '',
     label: event.label || '',
-    backgroundColor: event.backgroundColor || '#3788d8',
+    backgroundColor: event.backgroundColor || '#7CD4FD',
     allDay: event.allDay || false,
     tasks: event.tasks || []
   });
@@ -32,7 +31,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
       endTime: event.endTime || `${today}T10:00:00`,
       description: event.description || '',
       label: event.label || '',
-      backgroundColor: event.backgroundColor || '#3788d8',
+      backgroundColor: event.backgroundColor || '#7CD4FD',
       allDay: event.allDay || false,
       tasks: event.tasks || []
     });
@@ -44,6 +43,14 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  // Handle color selection
+  const handleColorSelect = (color: string) => {
+    setFormData(prev => ({
+      ...prev,
+      backgroundColor: color
     }));
   };
 
@@ -70,12 +77,6 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
     onSave(eventToSave);
   };
 
-  // Handle event deletion
-  const handleDelete = () => {
-    if (formData.id) {
-      onDelete(formData.id);
-    }
-  };
 
   return (
     <div className="card w-full max-w-md bg-base-100 shadow-xl">
@@ -122,7 +123,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
           </div>
 
           {/* Event Type */}
-          <div className="form-control">
+          {/* <div className="form-control">
             <label className="label">Event Type</label>
             <select
               name="label"
@@ -133,7 +134,7 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
               <option value="">None</option>
               <option value="deep">Deep Work</option>
             </select>
-          </div>
+          </div> */}
 
           {/* Description */}
           <div className="form-control">
@@ -164,17 +165,27 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
           <div className="form-control">
             <label className="label">Background Color</label>
             <div className="flex items-center space-x-2">
-              <input
-                type="text"
-                name="backgroundColor"
-                value={formData.backgroundColor}
-                onChange={handleChange}
-                className="input input-bordered w-full"
-              />
-              <div
-                className="w-10 h-10 rounded border"
-                style={{ backgroundColor: formData.backgroundColor }}
-              />
+              {[
+                { color: '#A9EFC5', name: 'Green' },
+                { color: '#D6BBFB', name: 'Purple' },
+                { color: '#7CD4FD', name: 'Blue' },
+                { color: '#FEA3B4', name: 'Pink' },
+                { color: '#FEB273', name: 'Orange' }
+              ].map(({ color, name }) => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => handleColorSelect(color)}
+                  className={`w-10 h-10 rounded border-2 transition-all duration-200 hover:scale-110 ${
+                    formData.backgroundColor === color 
+                      ? 'border-gray-800 ring-2 ring-gray-400' 
+                      : 'border-gray-300 hover:border-gray-500'
+                  }`}
+                  style={{ backgroundColor: color }}
+                  title={name}
+                  aria-label={`Select ${name} color`}
+                />
+              ))}
             </div>
           </div>
 
@@ -183,15 +194,6 @@ const EventForm: React.FC<EventFormProps> = ({ event, onSave, onDelete, onClose 
             <button type="button" className="btn btn-ghost" onClick={onClose}>
               Cancel
             </button>
-            {formData.id && (
-              <button
-                type="button"
-                className="btn btn-error"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            )}
             <button type="submit" className="btn btn-primary">
               Save
             </button>

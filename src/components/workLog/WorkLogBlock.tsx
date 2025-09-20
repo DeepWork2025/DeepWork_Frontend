@@ -40,26 +40,25 @@ const WorkLogBlock: React.FC<WorkLogBlockProps> = ({ event, onClick }) => {
 
   
 
-  // Determine background color based on event properties.
-  const getBgColor = () => {
-    // Example: different colors based on extendedProps.type
-    if (event.extendedProps?.type === 'deep') return 'bg-blue-500';
-    if (event.extendedProps?.type === 'shallow') return 'bg-green-500';
-    
-    // Default color
-    return 'bg-indigo-500';
+  // Get background color from event, default to blue if not set
+  const getBackgroundColor = () => {
+    const baseColor = event.backgroundColor || '#7CD4FD';
+    return baseColor;
   };
 
-
   return (
-    <div className={`p-2 ${getBgColor()} text-white rounded-md shadow-md mb-1 cursor-pointer hover:brightness-95 transition-all`}
-    onClick={() => onClick?.(event)}>
-
-    <div className="font-bold truncate">{event.title}</div>
-    <div className="text-xs flex justify-between">
-      <span>{formatTime(startTime)}</span>
-      {endTime && <span>{getDuration()}</span>}
-    </div>
+    <div 
+      className="p-2 text-white rounded-md shadow-md mb-1 cursor-pointer hover:brightness-95 transition-all"
+      style={{
+        backgroundColor: getBackgroundColor()
+      }}
+      onClick={() => onClick?.(event)}
+    >
+      <div className="font-bold truncate">{event.title}</div>
+      <div className="text-xs flex justify-between">
+        <span>{formatTime(startTime)}</span>
+        {endTime && <span>{getDuration()}</span>}
+      </div>
     </div>
   );
 };

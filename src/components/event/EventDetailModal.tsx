@@ -85,6 +85,13 @@ const EventDetailModal: React.FC<EventModalProps> = ({
     );
   };
 
+  const handleColorSelect = (color: string) => {
+    setEditedEvent(prev => ({
+      ...prev,
+      backgroundColor: color
+    }));
+  };
+
   const addNewTask = () => {
     const newId = Date.now().toString();
     setEditedTasks([
@@ -241,6 +248,52 @@ const EventDetailModal: React.FC<EventModalProps> = ({
             </svg>
             <span>{getDuration(startTime, endTime)}</span>
           </div>
+          
+          {/* Background Color Selection (only in editing mode) */}
+          {isEditing && (
+            <div className="flex items-center space-x-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"
+                />
+              </svg>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-gray-600">Background Color:</span>
+                <div className="flex space-x-1">
+                  {[
+                    { color: '#A9EFC5', name: 'Green' },
+                    { color: '#D6BBFB', name: 'Purple' },
+                    { color: '#7CD4FD', name: 'Blue' },
+                    { color: '#FEA3B4', name: 'Pink' },
+                    { color: '#FEB273', name: 'Orange' }
+                  ].map(({ color, name }) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleColorSelect(color)}
+                      className={`w-6 h-6 rounded border-2 transition-all duration-200 hover:scale-110 ${
+                        editedEvent.backgroundColor === color 
+                          ? 'border-gray-800 ring-2 ring-gray-400' 
+                          : 'border-gray-300 hover:border-gray-500'
+                      }`}
+                      style={{ backgroundColor: color }}
+                      title={name}
+                      aria-label={`Select ${name} color`}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Tasks section */}

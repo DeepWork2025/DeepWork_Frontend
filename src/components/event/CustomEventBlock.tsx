@@ -52,8 +52,8 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
       title: event.title,
       start: new Date().toISOString(),
       end: "",
+      backgroundColor: event.backgroundColor, // 传递背景颜色
       extendedProps: {
-        type: event.extendedProps.type || "deep",
         category: event.extendedProps.category,
         inProgress: true,
         isPaused: false,
@@ -143,7 +143,18 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
   };
 
   const isActive = isRunning && activeLog?.id === event.id;
-  const label = event.extendedProps.label || null;
+  
+  // Get background color from event, default to blue if not set
+  const getEventBackgroundColor = () => {
+    const baseColor = event.backgroundColor || '#7CD4FD';
+    const hex = baseColor.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
+    const rgbaColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+    console.log("CustomEventBlock backgroundColor:", baseColor, "rgba:", rgbaColor); // Debug log
+    return rgbaColor;
+  };
 
   return (
     <div
@@ -152,12 +163,16 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
         transition-all duration-300 ease-in-out
         ${
           isActive
-            ? "bg-sky-500 shadow-lg scale-[1.02]"
-            : isStopped
-            ? "bg-sky-400"
-            : "bg-sky-450"
+            ? "shadow-lg scale-[1.02]"
+            : ""
         }
       `}
+      style={{
+        backgroundColor: getEventBackgroundColor(),
+        borderColor: event.backgroundColor || '#7CD4FD',
+        borderWidth: '2px',
+        borderStyle: 'solid'
+      }}
     >
       <div className="flex justify-between items-center p-2 flex-1">
         {isShortestEvent() ? (
@@ -184,16 +199,11 @@ export const CustomEventBlock: React.FC<CustomEventBlockProps> = ({
               {formatTimeDisplay()}
             </div>
             <div className="text-sm font-semibold text-white truncate">
-              {event.title} {event.extendedProps.type && `[${event.extendedProps.type}]`}
+              {event.title}
             </div>
             <div className="text-xs text-white/80 truncate">
               { `Duration: ${calculateDuration()}`}
             </div>
-            {label && (
-              <span className="text-xs inline-block px-2 py-0.5 mt-1 bg-white/20 rounded-full text-white">
-                {label}
-              </span>
-            )}
           </div>
         )}
 

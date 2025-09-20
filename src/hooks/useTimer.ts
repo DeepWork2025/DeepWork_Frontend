@@ -24,7 +24,35 @@ export const useTimer = () => {
       // 检查是否超过最大时长
       if (currentElapsed >= MAX_DURATION) {
         console.warn('Timer exceeded maximum duration, auto-stopping...');
-        autoStopTimer();
+        // 直接在这里处理自动停止，避免依赖问题
+        const endTime = new Date().getTime();
+        const duration = endTime - startTime;
+
+        const updatedLog = {
+          ...activeLog,
+          end: new Date().toISOString(),
+          extendedProps: {
+            ...activeLog.extendedProps,
+            inProgress: false,
+            isPaused: false,
+            autoStopped: true,
+          },
+        };
+
+        workLogService.saveWorkLog(updatedLog);
+        workLogService.updateTotalWorkTime(duration);
+        
+        setActiveLog(null);
+        setElapsed(0);
+        setPausedAt(null);
+        
+        // 显示通知
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('Timer Auto Stopped', {
+            body: `"${activeLog.title}" System Auto Stopped after 8 hours`,
+            icon: '/favicon.ico'
+          });
+        }
       }
     }
     
@@ -224,6 +252,7 @@ export const useTimer = () => {
     workLogService.resetTotalWorkTime();
     setTotalWorkTime(0);
   }, []);
+
   
   return { 
     activeLog, 

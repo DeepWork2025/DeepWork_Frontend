@@ -3,8 +3,9 @@ export interface WorkLogData {
     title: string;
     start: string;
     end: string;
+    backgroundColor?: string; // 新增：背景颜色
     extendedProps: {
-      type: 'deep' | 'shallow';
+      // type?: 'deep' | 'shallow';
       category?: string;
       inProgress?: boolean;
       isPaused?: boolean;

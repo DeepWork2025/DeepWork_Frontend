@@ -16,7 +16,7 @@ export interface EventData {
     allDay?: boolean;
     tasks?: Task[];         // Optional array of tasks
     extendedProps?: {
-        type?: 'task' | 'subtask';
+        // type?: 'task' | 'subtask';
         taskId?: string;
         subtaskId?: string;
         originalTaskId?: string;

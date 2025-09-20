@@ -152,8 +152,8 @@ const WorkLogCalendar: React.FC<WorkLogCalendarProps> = ({
     start: new Date(log.start),
     end: new Date(log.end),
     allDay: false,
-    backgroundColor: log.extendedProps.type === "deep" ? "#4f46e5" : "#10b981",
-    borderColor: log.extendedProps.type === "deep" ? "#4338ca" : "#059669",
+    backgroundColor: log.backgroundColor || '#7CD4FD', // 直接使用backgroundColor，默认蓝色
+    borderColor: log.backgroundColor || '#7CD4FD', // 直接使用backgroundColor，默认蓝色
   }));
 
   // Add the active log as a real-time event if it exists
@@ -164,10 +164,8 @@ const WorkLogCalendar: React.FC<WorkLogCalendarProps> = ({
       start: new Date(activeLog.start),
       end: currentTime,
       allDay: false,
-      backgroundColor:
-        activeLog.extendedProps.type === "deep" ? "#4f46e5" : "#10b981",
-      borderColor:
-        activeLog.extendedProps.type === "deep" ? "#4338ca" : "#059669",
+      backgroundColor: activeLog.backgroundColor || '#7CD4FD', // 直接使用backgroundColor，默认蓝色
+      borderColor: activeLog.backgroundColor || '#7CD4FD', // 直接使用backgroundColor，默认蓝色
     });
   }
 
